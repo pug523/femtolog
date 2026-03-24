@@ -37,23 +37,23 @@ namespace {
 
 void stack_trace_entries_to_buffer(
     const StackTraceEntry entries[kPlatformMaxFrames],
-    std::size_t count,
+    size_t count,
     char* buffer,
-    std::size_t buffer_size) {
+    size_t buffer_size) {
   if (!buffer || buffer_size == 0) {
     return;
   }
 
   char line_buffer[kLineBufferSize];
-  std::size_t written = 0;
+  size_t written = 0;
 
-  for (std::size_t i = 0; i < count && written < buffer_size - 1; i++) {
+  for (size_t i = 0; i < count && written < buffer_size - 1; i++) {
     entries[i].to_string(line_buffer, sizeof(line_buffer));
-    std::size_t line_len = safe_strlen(line_buffer);
+    size_t line_len = safe_strlen(line_buffer);
 
     if (written + line_len + 1 < buffer_size) {
       char* cursor = buffer + written;
-      std::size_t raw_written = write_raw(cursor, line_buffer, line_len);
+      size_t raw_written = write_raw(cursor, line_buffer, line_len);
       written += raw_written;
 
       if (written < buffer_size - 1) {
@@ -71,7 +71,7 @@ void stack_trace_entries_to_buffer(
 
 const char* demangle_symbol_safe(const char* mangled_name,
                                  char* demangled_buffer,
-                                 std::size_t demangled_len) {
+                                 size_t demangled_len) {
   if (!mangled_name || !demangled_buffer || demangled_len == 0) {
     return mangled_name;
   }
@@ -123,10 +123,10 @@ bool is_valid_address(uintptr_t addr) {
 
 }  // namespace
 
-std::size_t collect_stack_trace(StackTraceEntry out[kPlatformMaxFrames],
-                                bool use_index,
-                                std::size_t first_frame,
-                                std::size_t max_frames) {
+size_t collect_stack_trace(StackTraceEntry out[kPlatformMaxFrames],
+                           bool use_index,
+                           size_t first_frame,
+                           size_t max_frames) {
   if (!out) {
     return 0;
   }
@@ -153,8 +153,8 @@ std::size_t collect_stack_trace(StackTraceEntry out[kPlatformMaxFrames],
   char address_buffer[kAddressStrLength];
   char demangled_buffer[kDemangledBufferSize];
 
-  std::size_t frame_index = 0;
-  std::size_t collected_count = 0;
+  size_t frame_index = 0;
+  size_t collected_count = 0;
 
   do {
     if (frame_index < first_frame) {
@@ -198,7 +198,7 @@ std::size_t collect_stack_trace(StackTraceEntry out[kPlatformMaxFrames],
     if (symbol_result == 0) {
       function_name = demangle_symbol_safe(symbol_buffer, demangled_buffer,
                                            sizeof(demangled_buffer));
-      entry.offset = static_cast<std::size_t>(symbol_offset);
+      entry.offset = static_cast<size_t>(symbol_offset);
     } else {
       Dl_info dl_info;
       std::memset(&dl_info, 0, sizeof(dl_info));
@@ -251,9 +251,9 @@ std::size_t collect_stack_trace(StackTraceEntry out[kPlatformMaxFrames],
   char address_buf[kAddressStrLength];
   char demangled_buf[kDemangledBufferSize];
   char symbol_buf[kSymbolBufferSize];
-  std::size_t collected_count = 0;
+  size_t collected_count = 0;
 
-  for (std::size_t i = first_frame; i < static_cast<std::size_t>(frames); i++) {
+  for (size_t i = first_frame; i < static_cast<size_t>(frames); i++) {
     uintptr_t current_address = reinterpret_cast<uintptr_t>(stack[i]);
 
     if (!is_valid_address(current_address)) {
@@ -271,7 +271,7 @@ std::size_t collect_stack_trace(StackTraceEntry out[kPlatformMaxFrames],
 
     const char* function_name = "";
     const char* file_name = "";
-    std::size_t offset = 0;
+    size_t offset = 0;
 
     Dl_info dl_info;
     std::memset(&dl_info, 0, sizeof(dl_info));
@@ -287,8 +287,7 @@ std::size_t collect_stack_trace(StackTraceEntry out[kPlatformMaxFrames],
         file_name = dl_info.dli_fname;
       }
       if (dl_info.dli_saddr) {
-        std::uintptr_t symbol_base =
-            reinterpret_cast<std::uintptr_t>(dl_info.dli_saddr);
+        uintptr_t symbol_base = reinterpret_cast<uintptr_t>(dl_info.dli_saddr);
         if (current_address >= symbol_base) {
           offset = current_address - symbol_base;
         }
@@ -328,7 +327,7 @@ std::size_t collect_stack_trace(StackTraceEntry out[kPlatformMaxFrames],
   DWORD displacement;
 
   char address_buf[32];
-  std::size_t count = 0;
+  size_t count = 0;
 
   for (WORD i = 0; i < frames; i++) {
     DWORD64 current_address = reinterpret_cast<DWORD64>(stack[i + first_frame]);
@@ -373,9 +372,9 @@ std::size_t collect_stack_trace(StackTraceEntry out[kPlatformMaxFrames],
 }
 
 std::string stack_trace_from_current_context(bool use_index,
-                                             std::size_t first_frame,
-                                             std::size_t max_frames) {
-  constexpr const std::size_t kBufSize = 4096;
+                                             size_t first_frame,
+                                             size_t max_frames) {
+  constexpr const size_t kBufSize = 4096;
   char buf[kBufSize];
   stack_trace_from_current_context(buf, kBufSize, use_index, first_frame + 1,
                                    max_frames);
@@ -383,12 +382,12 @@ std::string stack_trace_from_current_context(bool use_index,
 }
 
 void stack_trace_from_current_context(char* buffer,
-                                      std::size_t buffer_size,
+                                      size_t buffer_size,
                                       bool use_index,
-                                      std::size_t first_frame,
-                                      std::size_t max_frames) {
+                                      size_t first_frame,
+                                      size_t max_frames) {
   StackTraceEntry entries[kPlatformMaxFrames];
-  std::size_t count =
+  size_t count =
       collect_stack_trace(entries, use_index, first_frame, max_frames);
   stack_trace_entries_to_buffer(entries, count, buffer, buffer_size);
 }

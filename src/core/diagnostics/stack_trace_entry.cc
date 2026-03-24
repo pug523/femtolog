@@ -11,25 +11,25 @@
 
 namespace femtolog::core {
 
-void StackTraceEntry::to_string(char* out_buf, std::size_t out_buf_size) const {
+void StackTraceEntry::to_string(char* out_buf, size_t out_buf_size) const {
   char* cursor = out_buf;
   const char* end = out_buf + out_buf_size;
 
   if (use_index) {
-    std::size_t index_len = write_format(cursor, end, "@{}", index);
+    size_t index_len = write_format(cursor, end, "@{}", index);
     padding(cursor, end, index_len, kIndexAlignLength);
   }
 
   if (address[0]) {
-    std::size_t addr_len = write_format(cursor, end, "{}", address.data());
+    size_t addr_len = write_format(cursor, end, "{}", address.data());
     padding(cursor, end, addr_len, kAddressAlignLength);
   }
 
   const char* func = function[0] ? function.data() : kUnknownFunction;
-  std::size_t func_len = write_format(cursor, end, "{}", func);
+  size_t func_len = write_format(cursor, end, "{}", func);
 
   if (offset > 0) {
-    std::size_t offset_len = write_format(cursor, end, "+0x{}", offset);
+    size_t offset_len = write_format(cursor, end, "+0x{}", offset);
     func_len += offset_len;
   }
 

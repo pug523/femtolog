@@ -4,7 +4,7 @@ AllowShortBlocksOnASingleLine: true
 AllowShortCaseLabelsOnASingleLine: true
 AllowShortFunctionsOnASingleLine: Inline
 
-Standard: Cpp11
+Standard: c++20
 
 InsertBraces: true
 InsertNewlineAtEOF: true

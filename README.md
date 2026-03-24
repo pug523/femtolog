@@ -6,13 +6,12 @@
 [![Issues](https://img.shields.io/github/issues/pugur523/femtolog.svg)](https://github.com/pugur523/femtolog/issues)
 [![License](https://img.shields.io/badge/License-Apache%20License%20Version%202.0-red)](LICENSE)
 [![C++20](https://img.shields.io/badge/C++-20-blue?logo=cplusplus)](https://isocpp.org/)
-[![CMake](https://img.shields.io/badge/CMake-4.0.2+-green?logo=cmake)](https://cmake.org/)
+[![xmake](https://img.shields.io/badge/xmake-black)](https://xmake.io)
 <br/>
-[![日本語の説明はこちら](https://img.shields.io/badge/日本語の説明はこちら-blue)](README_ja.md)
 
-> Ultra-Light, High-Performance Asynchronous Logger
+> Ultra Light High Performance Asynchronous Logger
 
-## ☄ Overview
+## Overview
 
 **femtolog** is a blazing-fast, minimal-overhead asynchronous logging library built for performance-critical applications. It leverages zero-cost abstractions, cache-aligned SPSC queues, and compile-time format string serialization.
 
@@ -20,13 +19,14 @@ Designed for modern C++ projects where every nanosecond counts.
 
 ---
 
-## 📖 Table of Contents
-- [☄ Overview](#-overview)
-- [📖 Table of Contents](#-table-of-contents)
-- [🚀 Features](#-features)
-- [📦 Usage](#-usage)
-- [🔄 Workflow](#-workflow)
-- [📊 Benchmarks](#-benchmarks)
+## Table of Contents
+
+- [Overview](#-overview)
+- [Table of Contents](#-table-of-contents)
+- [Features](#-features)
+- [Usage](#-usage)
+- [Workflow](#-workflow)
+- [Benchmarks](#-benchmarks)
   - [System Environment](#system-environment)
     - [Literal without format](#literal-without-format)
     - [Format integer](#format-integer)
@@ -35,36 +35,59 @@ Designed for modern C++ projects where every nanosecond counts.
     - [Format string view](#format-string-view)
     - [Format mixed](#format-mixed)
     - [Format large string](#format-large-string)
-- [🔧 Installation](#-installation)
+- [Installation](#-installation)
   - [Using CMake](#using-cmake)
-- [🔌 Custom Sinks](#-custom-sinks)
-  - [✨ Implement Your Own Sink](#-implement-your-own-sink)
-- [🪪 License](#-license)
-- [❤️ Credits](#️-credits)
+- [Custom Sinks](#-custom-sinks)
+  - [Implement Your Own Sink](#-implement-your-own-sink)
+- [License](#-license)
+- [Credits](#️-credits)
 
+## Features
 
-## 🚀 Features
-
-- 🔧 Compile-time format string registration
-- 🧵 True asynchronous logging pipeline
-- 🎯 Zero dynamic memory allocations on the frontend
-- 💾 Dedicated backend worker thread for formatting and output
-- ⚡ Faster than `spdlog`, and `quill` in benchmark
+- Compile-time format string registration
+- True asynchronous logging pipeline
+- Zero dynamic memory allocations on the frontend
+- Dedicated backend worker thread for formatting and output
+- Faster than `spdlog`, and `quill` in benchmark
 
 ---
 
-## 📦 Usage
+## Usage
 
 `femtolog` supports formatting messages using [fmtlib](https://github.com/fmtlib/fmt).
+
+### Basic Example
+
+```cpp
+#include "femtolog/femtolog.h"
+
+using namespace femtolog;
+int main() {
+  // Initialize the logger
+  Logger& logger = Logger::logger();
+  logger.init();
+  logger.register_sink<femtolog::StdoutSink<>>();
+  logger.start_worker();
+
+  logger.info<"Hello World">();
+
+  logger.stop_worker();
+  logger.clear_sinks();
+
+  return 0;
+}
+```
+
+### Advanced Example
 
 ```cpp
 #include "femtolog/femtolog.h"
 
 int main() {
-  // get thread local logger instance
+  // Get thread local logger instance.
   femtolog::Logger& logger = femtolog::Logger::logger();
 
-  // initialize logger and register log sink
+  // Initialize logger and register log sink.
   femtolog::FemtologOptions options = {
       .spsc_queue_size = 1024 * 1024 * 4,
       .backend_format_buffer_size = 1024 * 64,
@@ -78,7 +101,7 @@ int main() {
   logger.register_sink<femtolog::JsonLinesSink<>>();
   logger.level("trace");
 
-  // start the backend worker that dequeues logged entries
+  // Start the backend worker that dequeues logged entries.
   logger.start_worker();
 
   std::string username = "pugur";
@@ -86,7 +109,7 @@ int main() {
   bool result = true;
   int error_code = -1;
 
-  // log messages with compile-time interpreted format strings:
+  // Log messages with compile-time interpreted format strings.
   logger.trace<"Hello {}\n">("World");
   logger.debug<"Hello World wo formatting\n">();
   logger.info<"User \"{}\" logged in.\n">(username);
@@ -102,7 +125,7 @@ int main() {
 }
 ```
 
-## 🔄 Workflow
+## Workflow
 
 The logging pipeline consists of a frontend (thread-local logger) and a backend (worker thread):
 
@@ -116,13 +139,13 @@ graph TD
     D --> E[Sink: stdout / files / custom]
 ```
 
-
 This architecture separates formatting from the hot path of logging, minimizing latency.
 
-## 📊 Benchmarks
+## Benchmarks
 
 ### System Environment
-- **OS**: Ubuntu 22.04 x86_64 
+
+- **OS**: Ubuntu 22.04 x86_64
 - **CPU**: Intel Core i3 12100 @ 4.3GHz
 - **RAM**: DDR4 3600MHz 64GB
 
@@ -195,11 +218,12 @@ After building, you can run the built benchmarks and collect results by executin
   <img src="src/bench/results/archive/2025-07-03_20-33-05.png">
 </div>
 
-## 🔧 Installation
+## Installation
 
 ### Using CMake
 
 Add this repository as a git submodule:
+
 ```bash
 git submodule add https://github.com/pugur523/femtolog.git ./femtolog --recursive
 ```
@@ -213,6 +237,7 @@ target_link_libraries(your_target PRIVATE femtolog)
 ```
 
 To install the compiled library:
+
 ```cmake
 set(INSTALL_FEMTOLOG TRUE)
 set(FEMTOLOG_INSTALL_HEADERS TRUE)
@@ -221,34 +246,41 @@ add_subdirectory(femtolog)
 target_link_libraries(your_target PRIVATE femtolog)
 ```
 
-## 🔌 Custom Sinks
+## Custom Sinks
+
 Need to log to a database, a network socket, or a ring buffer?
 
 `femtolog` supports plug-and-play custom sinks via a simple interface:
 
-### ✨ Implement Your Own Sink
+### Implement Your Own Sink
+
 To define a custom sink, just inherit from `SinkBase` and implement `on_log()`:
+
 ```cpp
 #include "femtolog/sinks/sink_base.h"
 
 class MySink : public femtolog::SinkBase {
  public:
-  void on_log(const LogEntry& entry, const char* content, std::size_t len) override {
+  void on_log(const LogEntry& entry, const char* content, size_t len) override {
     // Write to file, send over network, etc.
     std::fwrite(content, 1, len, stderr);
   }
 };
 ```
+
 Then register your sink with the logger:
+
 ```cpp
 logger.register_sink<MySink>();
 ```
+
 That's it — your sink will now receive fully formatted log entries, asynchronously, from the backend.
 
-## 🪪 License
+## License
+
 `femtolog` is licensed under the [Apache 2.0 License](LICENSE).
 
-## ❤️ Credits
+## Credits
 
 - **[zlib](https://github.com/madler/zlib)**<br/>
   Used in `FileSink` and `JsonLinesSink` for compressing log files efficiently.
@@ -258,6 +290,3 @@ That's it — your sink will now receive fully formatted log entries, asynchrono
   Used to benchmark `femtolog` against other logging libraries to ensure high performance.
 - **[fmtlib](https://github.com/fmtlib/fmt)**<br/>
   Powers the formatting engine behind all log message rendering.
-
-
-Built with love by [pugur](https://github.com/pugur523).

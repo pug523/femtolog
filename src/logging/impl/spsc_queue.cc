@@ -16,16 +16,16 @@ namespace femtolog::logging {
 
 SpscQueue::SpscQueue() : buffer_(nullptr), buffer_deleter_(nullptr) {}
 
-void SpscQueue::reserve(std::size_t capacity_bytes) {
+void SpscQueue::reserve(size_t capacity_bytes) {
   FEMTOLOG_DCHECK_GT(capacity_bytes, 0);
 
   // Ensure capacity is power of 2 for efficient bitwise operations
-  const std::size_t capacity = next_power_of_2(capacity_bytes);
+  const size_t capacity = next_power_of_2(capacity_bytes);
 
   // Allocate cache-line aligned buffer for optimal memory access
   // Use larger alignment for better performance on modern CPUs
-  constexpr std::size_t alignment = core::kCacheSize;
-  const std::size_t alloc_size = capacity + alignment;
+  constexpr size_t alignment = core::kCacheSize;
+  const size_t alloc_size = capacity + alignment;
 
   std::byte* new_buffer = static_cast<std::byte*>(
       core::aligned_alloc_wrapper(alignment, alloc_size));
@@ -61,7 +61,7 @@ void SpscQueue::reserve(std::size_t capacity_bytes) {
 }
 
 SpscQueueStatus SpscQueue::enqueue_bytes(const void* data_ptr,
-                                         std::size_t data_size) noexcept {
+                                         size_t data_size) noexcept {
   if (!buffer_) [[unlikely]] {
     return SpscQueueStatus::kUninitialized;
   }
@@ -69,24 +69,24 @@ SpscQueueStatus SpscQueue::enqueue_bytes(const void* data_ptr,
     return SpscQueueStatus::kSizeIsZero;
   }
 
-  const std::size_t current_tail = tail_idx_.load(std::memory_order_relaxed);
+  const size_t current_tail = tail_idx_.load(std::memory_order_relaxed);
 
   // Use cached snapshot to reduce atomic loads
-  std::size_t current_head = head_cached_snapshot_;
-  const std::size_t used_space = current_tail - current_head;
+  size_t current_head = head_cached_snapshot_;
+  const size_t used_space = current_tail - current_head;
 
   if (capacity_ - used_space < data_size) [[unlikely]] {
     current_head = head_idx_.load(std::memory_order_acquire);
     head_cached_snapshot_ = current_head;
 
-    const std::size_t new_used_space = current_tail - current_head;
+    const size_t new_used_space = current_tail - current_head;
     if (capacity_ - new_used_space < data_size) [[unlikely]] {
       return SpscQueueStatus::kOverflow;
     }
   }
 
-  const std::size_t tail_pos = current_tail & mask_;
-  const std::size_t space_to_end = (mask_ + 1) - tail_pos;
+  const size_t tail_pos = current_tail & mask_;
+  const size_t space_to_end = (mask_ + 1) - tail_pos;
 
   if (data_size <= space_to_end) [[likely]] {
     std::memcpy(buffer_ + tail_pos, data_ptr, data_size);
@@ -104,7 +104,7 @@ SpscQueueStatus SpscQueue::enqueue_bytes(const void* data_ptr,
 }
 
 SpscQueueStatus SpscQueue::dequeue_bytes(void* data_ptr,
-                                         std::size_t data_size) noexcept {
+                                         size_t data_size) noexcept {
   if (!buffer_) [[unlikely]] {
     return SpscQueueStatus::kUninitialized;
   }
@@ -112,24 +112,24 @@ SpscQueueStatus SpscQueue::dequeue_bytes(void* data_ptr,
     return SpscQueueStatus::kSizeIsZero;
   }
 
-  const std::size_t current_head = head_idx_.load(std::memory_order_relaxed);
+  const size_t current_head = head_idx_.load(std::memory_order_relaxed);
 
   // Use cached snapshot to reduce atomic loads
-  std::size_t current_tail = tail_cached_snapshot_;
-  const std::size_t available_data = current_tail - current_head;
+  size_t current_tail = tail_cached_snapshot_;
+  const size_t available_data = current_tail - current_head;
 
   if (available_data < data_size) [[unlikely]] {
     current_tail = tail_idx_.load(std::memory_order_acquire);
     tail_cached_snapshot_ = current_tail;
 
-    const std::size_t new_available = current_tail - current_head;
+    const size_t new_available = current_tail - current_head;
     if (new_available < data_size) [[unlikely]] {
       return SpscQueueStatus::kUnderflow;
     }
   }
 
-  const std::size_t head_pos = current_head & mask_;
-  const std::size_t bytes_to_end = (mask_ + 1) - head_pos;
+  const size_t head_pos = current_head & mask_;
+  const size_t bytes_to_end = (mask_ + 1) - head_pos;
 
   if (data_size <= bytes_to_end) [[likely]] {
     std::memcpy(data_ptr, buffer_ + head_pos, data_size);
@@ -147,7 +147,7 @@ SpscQueueStatus SpscQueue::dequeue_bytes(void* data_ptr,
 }
 
 SpscQueueStatus SpscQueue::peek_bytes(void* data_ptr,
-                                      std::size_t data_size) const noexcept {
+                                      size_t data_size) const noexcept {
   if (!buffer_) [[unlikely]] {
     return SpscQueueStatus::kUninitialized;
   }
@@ -155,16 +155,16 @@ SpscQueueStatus SpscQueue::peek_bytes(void* data_ptr,
     return SpscQueueStatus::kSizeIsZero;
   }
 
-  const std::size_t current_head = head_idx_.load(std::memory_order_relaxed);
-  const std::size_t current_tail = tail_idx_.load(std::memory_order_relaxed);
+  const size_t current_head = head_idx_.load(std::memory_order_relaxed);
+  const size_t current_tail = tail_idx_.load(std::memory_order_relaxed);
 
-  const std::size_t available_data = current_tail - current_head;
+  const size_t available_data = current_tail - current_head;
   if (data_size > available_data) [[unlikely]] {
     return SpscQueueStatus::kUnderflow;
   }
 
-  const std::size_t head_pos = current_head & mask_;
-  const std::size_t bytes_to_end = (mask_ + 1) - head_pos;
+  const size_t head_pos = current_head & mask_;
+  const size_t bytes_to_end = (mask_ + 1) - head_pos;
 
   if (data_size <= bytes_to_end) [[likely]] {
     std::memcpy(data_ptr, buffer_ + head_pos, data_size);
@@ -179,8 +179,8 @@ SpscQueueStatus SpscQueue::peek_bytes(void* data_ptr,
 }
 
 SpscQueueStatus SpscQueue::enqueue_bulk(const void* const* data_ptrs,
-                                        const std::size_t* data_sizes,
-                                        std::size_t count) noexcept {
+                                        const size_t* data_sizes,
+                                        size_t count) noexcept {
   if (!buffer_) [[unlikely]] {
     return SpscQueueStatus::kUninitialized;
   }
@@ -189,8 +189,8 @@ SpscQueueStatus SpscQueue::enqueue_bulk(const void* const* data_ptrs,
   }
 
   // Calculate total size needed
-  std::size_t total_size = 0;
-  for (std::size_t i = 0; i < count; ++i) {
+  size_t total_size = 0;
+  for (size_t i = 0; i < count; ++i) {
     total_size += data_sizes[i];
   }
 
@@ -198,26 +198,26 @@ SpscQueueStatus SpscQueue::enqueue_bulk(const void* const* data_ptrs,
     return SpscQueueStatus::kSizeIsZero;
   }
 
-  const std::size_t current_tail = tail_idx_.load(std::memory_order_relaxed);
-  std::size_t current_head = head_cached_snapshot_;
-  const std::size_t used_space = current_tail - current_head;
+  const size_t current_tail = tail_idx_.load(std::memory_order_relaxed);
+  size_t current_head = head_cached_snapshot_;
+  const size_t used_space = current_tail - current_head;
 
   if (capacity_ - used_space < total_size) [[unlikely]] {
     current_head = head_idx_.load(std::memory_order_acquire);
     head_cached_snapshot_ = current_head;
 
-    const std::size_t new_used_space = current_tail - current_head;
+    const size_t new_used_space = current_tail - current_head;
     if (capacity_ - new_used_space < total_size) [[unlikely]] {
       return SpscQueueStatus::kOverflow;
     }
   }
 
   // Copy all data
-  std::size_t offset = 0;
-  for (std::size_t i = 0; i < count; ++i) {
-    const std::size_t data_size = data_sizes[i];
-    const std::size_t tail_pos = (current_tail + offset) & mask_;
-    const std::size_t space_to_end = (mask_ + 1) - tail_pos;
+  size_t offset = 0;
+  for (size_t i = 0; i < count; ++i) {
+    const size_t data_size = data_sizes[i];
+    const size_t tail_pos = (current_tail + offset) & mask_;
+    const size_t space_to_end = (mask_ + 1) - tail_pos;
 
     if (data_size <= space_to_end) [[likely]] {
       std::memcpy(buffer_ + tail_pos, data_ptrs[i], data_size);
@@ -237,8 +237,8 @@ SpscQueueStatus SpscQueue::enqueue_bulk(const void* const* data_ptrs,
 }
 
 SpscQueueStatus SpscQueue::dequeue_bulk(void* const* data_ptrs,
-                                        const std::size_t* data_sizes,
-                                        std::size_t count) noexcept {
+                                        const size_t* data_sizes,
+                                        size_t count) noexcept {
   if (!buffer_) [[unlikely]] {
     return SpscQueueStatus::kUninitialized;
   }
@@ -247,8 +247,8 @@ SpscQueueStatus SpscQueue::dequeue_bulk(void* const* data_ptrs,
   }
 
   // Calculate total size needed
-  std::size_t total_size = 0;
-  for (std::size_t i = 0; i < count; ++i) {
+  size_t total_size = 0;
+  for (size_t i = 0; i < count; ++i) {
     total_size += data_sizes[i];
   }
 
@@ -256,26 +256,26 @@ SpscQueueStatus SpscQueue::dequeue_bulk(void* const* data_ptrs,
     return SpscQueueStatus::kSizeIsZero;
   }
 
-  const std::size_t current_head = head_idx_.load(std::memory_order_relaxed);
-  std::size_t current_tail = tail_cached_snapshot_;
-  const std::size_t available_data = current_tail - current_head;
+  const size_t current_head = head_idx_.load(std::memory_order_relaxed);
+  size_t current_tail = tail_cached_snapshot_;
+  const size_t available_data = current_tail - current_head;
 
   if (available_data < total_size) [[unlikely]] {
     current_tail = tail_idx_.load(std::memory_order_acquire);
     tail_cached_snapshot_ = current_tail;
 
-    const std::size_t new_available = current_tail - current_head;
+    const size_t new_available = current_tail - current_head;
     if (new_available < total_size) [[unlikely]] {
       return SpscQueueStatus::kUnderflow;
     }
   }
 
   // Copy all data
-  std::size_t offset = 0;
-  for (std::size_t i = 0; i < count; ++i) {
-    const std::size_t data_size = data_sizes[i];
-    const std::size_t head_pos = (current_head + offset) & mask_;
-    const std::size_t bytes_to_end = (mask_ + 1) - head_pos;
+  size_t offset = 0;
+  for (size_t i = 0; i < count; ++i) {
+    const size_t data_size = data_sizes[i];
+    const size_t head_pos = (current_head + offset) & mask_;
+    const size_t bytes_to_end = (mask_ + 1) - head_pos;
 
     if (data_size <= bytes_to_end) [[likely]] {
       std::memcpy(data_ptrs[i], buffer_ + head_pos, data_size);

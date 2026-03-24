@@ -2,4 +2,5 @@ Diagnostics:
   UnusedIncludes: None
   MissingIncludes: None
 CompileFlags:
+  CompilationDatabase: out/
   Remove: [-cfg=*, -exec_root=*, -inputs=*]

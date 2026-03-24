@@ -95,19 +95,20 @@ std::string read_file(const char* path) {
 
   std::string contents;
   if (st.st_size > 0) {
-    contents.resize(static_cast<std::size_t>(st.st_size));
-    std::size_t total_read = 0;
-    while (total_read < static_cast<std::size_t>(st.st_size)) {
+    contents.resize(static_cast<size_t>(st.st_size));
+    size_t total_read = 0;
+    while (total_read < static_cast<size_t>(st.st_size)) {
 #if FEMTOLOG_IS_WINDOWS
       int bytes = _read(fd, &contents[total_read],
                         static_cast<unsigned int>(st.st_size - total_read));
 #else
-      ssize_t bytes = read(fd, &contents[total_read], st.st_size - total_read);
+      ssize_t bytes = read(fd, &contents[total_read],
+                           static_cast<size_t>(st.st_size) - total_read);
 #endif
       if (bytes <= 0) {
         break;
       }
-      total_read += static_cast<std::size_t>(bytes);
+      total_read += static_cast<size_t>(bytes);
     }
     contents.resize(total_read);
   }
@@ -132,7 +133,7 @@ const std::string& exe_path() {
 #else
     char path[kPathMaxLength] = {};
     ssize_t len = readlink("/proc/self/exe", path, sizeof(path) - 1);
-    return len == -1 ? "" : std::string(path, len);
+    return len == -1 ? "" : std::string(path, static_cast<size_t>(len));
 #endif
   }();
 
@@ -163,7 +164,7 @@ bool is_executable_in_path(const char* path) {
   std::vector<std::string> exts;
   if (pathext) {
     std::string extstr = pathext;
-    std::size_t start = 0, end;
+    size_t start = 0, end;
     while ((end = extstr.find(';', start)) != std::string::npos) {
       exts.push_back(extstr.substr(start, end - start));
       start = end + 1;
@@ -179,7 +180,7 @@ bool is_executable_in_path(const char* path) {
     return false;
   }
   std::string path_var = path_env;
-  std::size_t start = 0, end;
+  size_t start = 0, end;
   while ((end = path_var.find(FEMTOLOG_PATH_SEPARATOR, start)) !=
          std::string::npos) {
     std::string dir = path_var.substr(start, end - start);
@@ -262,7 +263,7 @@ Files list_files(const std::string& path) {
 }
 
 std::string parent_dir(const std::string& path) {
-  std::size_t pos = path.find_last_of(FEMTOLOG_DIR_SEPARATOR);
+  size_t pos = path.find_last_of(FEMTOLOG_DIR_SEPARATOR);
   if (pos == std::string::npos) {
     return "";
   }
@@ -270,7 +271,7 @@ std::string parent_dir(const std::string& path) {
 }
 
 std::string base_name(const std::string& path) {
-  std::size_t pos = path.find_last_of(FEMTOLOG_DIR_SEPARATOR);
+  size_t pos = path.find_last_of(FEMTOLOG_DIR_SEPARATOR);
   if (pos == std::string::npos) {
     return "";
   }
@@ -304,14 +305,14 @@ std::string temp_path(const std::string& prefix) {
       "0123456789"
       "ABCDEFGHIJKLMNOPQRSTUVWXYZ"
       "abcdefghijklmnopqrstuvwxyz";
-  constexpr std::size_t length = 8;
+  constexpr size_t length = 8;
 
   std::mt19937 rng(static_cast<unsigned>(
       std::chrono::steady_clock::now().time_since_epoch().count()));
   std::uniform_int_distribution<> dist(0, sizeof(charset) - 2);
 
   std::string suffix = "femtolog_";
-  for (std::size_t i = 0; i < length; ++i) {
+  for (size_t i = 0; i < length; ++i) {
     suffix += charset[dist(rng)];
   }
 
@@ -338,9 +339,9 @@ bool compress(const char* src_path,
     return false;
   }
 
-  constexpr std::size_t kBufSize = 8192;
+  constexpr size_t kBufSize = 8192;
   char buf[kBufSize];
-  while (std::size_t read = std::fread(buf, 1, kBufSize, src)) {
+  while (size_t read = std::fread(buf, 1, kBufSize, src)) {
     if (gzwrite(dst, buf, static_cast<unsigned int>(read)) == 0) {
       gzclose(dst);
       std::fclose(src);
@@ -371,11 +372,11 @@ int create_directory(const char* path) {
 
 int create_directories(const char* path) {
   std::string sanitized_path = sanitize_component(path, true);
-  std::size_t pos = 0;
+  size_t pos = 0;
   int result = 0;
 
   while (pos < sanitized_path.size()) {
-    std::size_t next_pos = sanitized_path.find(FEMTOLOG_DIR_SEPARATOR, pos);
+    size_t next_pos = sanitized_path.find(FEMTOLOG_DIR_SEPARATOR, pos);
     std::string dir;
 
     if (next_pos != std::string::npos) {
@@ -452,9 +453,9 @@ int write_file(const char* path, const std::string& content) {
     return -1;
   }
 
-  std::size_t total_written = 0;
+  size_t total_written = 0;
   const char* data = content.data();
-  std::size_t size = content.size();
+  size_t size = content.size();
 
   while (total_written < size) {
 #if FEMTOLOG_IS_WINDOWS
@@ -473,7 +474,7 @@ int write_file(const char* path, const std::string& content) {
 #endif
       return -1;
     }
-    total_written += static_cast<std::size_t>(bytes);
+    total_written += static_cast<size_t>(bytes);
   }
 
 #if FEMTOLOG_IS_WINDOWS
@@ -485,7 +486,7 @@ int write_file(const char* path, const std::string& content) {
 }
 
 int write_binary_to_file(const void* binary_data,
-                         std::size_t binary_size,
+                         size_t binary_size,
                          const std::string& output_path) {
   if (!binary_data || binary_size == 0) {
     std::cerr << "Invalid data or size (null or zero) for file: " << output_path
@@ -500,7 +501,7 @@ int write_binary_to_file(const void* binary_data,
     return 2;
   }
 
-  std::size_t written = fwrite(binary_data, 1, binary_size, fp);
+  size_t written = fwrite(binary_data, 1, binary_size, fp);
   fflush(fp);
   fclose(fp);
 
@@ -516,8 +517,8 @@ int write_binary_to_file(const void* binary_data,
 }
 
 std::string file_extension(const std::string& path) {
-  std::size_t last_slash = path.find_last_of(FEMTOLOG_DIR_SEPARATOR);
-  std::size_t last_dot = path.find_last_of('.');
+  size_t last_slash = path.find_last_of(FEMTOLOG_DIR_SEPARATOR);
+  size_t last_dot = path.find_last_of('.');
 
   if (last_dot == std::string::npos ||
       (last_slash != std::string::npos && last_dot < last_slash)) {
@@ -534,8 +535,8 @@ std::string file_extension(const std::string& path) {
 }
 
 std::string file_name_without_extension(const std::string& path) {
-  std::size_t last_slash = path.find_last_of(FEMTOLOG_DIR_SEPARATOR);
-  std::size_t last_dot = path.find_last_of('.');
+  size_t last_slash = path.find_last_of(FEMTOLOG_DIR_SEPARATOR);
+  size_t last_dot = path.find_last_of('.');
 
   std::string_view filename_part;
   if (last_slash == std::string::npos) {
@@ -550,7 +551,7 @@ std::string file_name_without_extension(const std::string& path) {
       (last_slash != std::string::npos && last_dot == last_slash + 1)) {
     return std::string(filename_part);
   } else {
-    std::size_t relative_dot_pos = last_dot;
+    size_t relative_dot_pos = last_dot;
     if (last_slash != std::string::npos) {
       relative_dot_pos = last_dot - (last_slash + 1);
     }
@@ -582,8 +583,8 @@ std::vector<std::string> read_lines_default(const std::string& content) {
     return lines;
   }
 
-  std::size_t estimated_lines =
-      std::count(content.begin(), content.end(), '\n') + 1;
+  size_t estimated_lines =
+      static_cast<size_t>(std::count(content.begin(), content.end(), '\n') + 1);
   lines.reserve(estimated_lines);
 
   const char* current_pos = content.data();
@@ -591,10 +592,10 @@ std::vector<std::string> read_lines_default(const std::string& content) {
 
   while (current_pos < end_pos) {
     const char* next_newline = static_cast<const char*>(
-        memchr(current_pos, '\n', end_pos - current_pos));
+        memchr(current_pos, '\n', static_cast<size_t>(end_pos - current_pos)));
 
     const char* line_end = next_newline ? next_newline : end_pos;
-    std::size_t line_length = line_end - current_pos;
+    size_t line_length = static_cast<size_t>(line_end - current_pos);
 
     // CRLF
     if (line_length > 0 && line_end[-1] == '\r') {
@@ -618,12 +619,12 @@ std::vector<std::string> read_lines_with_avx2(const std::string& content) {
   }
 
   // predicts as 80 chars per line.
-  std::vector<std::size_t> newline_positions;
+  std::vector<size_t> newline_positions;
   newline_positions.reserve(content.size() / 80);
 
   const char* data = content.data();
-  std::size_t size = content.size();
-  std::size_t pos = 0;
+  size_t size = content.size();
+  size_t pos = 0;
 
   // search line breaks with AVX2 (processes 32 bytes at a time)
   if (size >= 32) {
@@ -652,9 +653,9 @@ std::vector<std::string> read_lines_with_avx2(const std::string& content) {
 
   lines.reserve(newline_positions.size() + 1);
 
-  std::size_t line_start = 0;
-  for (std::size_t newline_pos : newline_positions) {
-    std::size_t line_length = newline_pos - line_start;
+  size_t line_start = 0;
+  for (size_t newline_pos : newline_positions) {
+    size_t line_length = newline_pos - line_start;
 
     // CRLF
     if (line_length > 0 && data[line_start + line_length - 1] == '\r') {
@@ -667,7 +668,7 @@ std::vector<std::string> read_lines_with_avx2(const std::string& content) {
 
   // last line
   if (line_start < size) {
-    std::size_t line_length = size - line_start;
+    size_t line_length = size - line_start;
     if (line_length > 0 && data[line_start + line_length - 1] == '\r') {
       --line_length;
     }

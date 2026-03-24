@@ -114,7 +114,7 @@ void BackendWorker::clear_sinks() {
 }
 
 void BackendWorker::set_cpu_affinity() {
-  if (worker_thread_cpu_affinity_ == std::numeric_limits<std::size_t>::max()) {
+  if (worker_thread_cpu_affinity_ == std::numeric_limits<size_t>::max()) {
     // Affinity is disabled
     return;
   }
@@ -147,7 +147,7 @@ inline bool BackendWorker::read_and_process_one() {
     return false;
   }
 
-  const std::size_t total_size = sizeof(LogEntry) + payload_len;
+  const size_t total_size = sizeof(LogEntry) + payload_len;
   FEMTOLOG_DCHECK_GE(queue_->size(), total_size);
   if (queue_->dequeue_bytes(dequeue_buffer_ptr_, total_size) !=
       SpscQueueStatus::kOk) {
@@ -229,9 +229,9 @@ void BackendWorker::process_log_entry(LogEntry* entry) {
   const uint16_t format_id = entry->format_id;
 
   if (format_id == kLiteralLogStringId) {
-    constexpr const std::size_t kBufSize = kMaxPayloadSize;
+    constexpr const size_t kBufSize = kMaxPayloadSize;
     char buf[kBufSize];
-    const std::size_t n = entry->copy_raw_payload(buf, kBufSize);
+    const size_t n = entry->copy_raw_payload(buf, kBufSize);
     buf[n] = '\0';
     for (const auto& sink : sinks_) {
       FEMTOLOG_DCHECK(sink);
@@ -249,7 +249,7 @@ void BackendWorker::process_log_entry(LogEntry* entry) {
       return;
     }
 
-    const std::size_t size = header->deserialize_and_format_func(
+    const size_t size = header->deserialize_and_format_func(
         &format_buffer_, header->format_func,
         entry->payload() + sizeof(*header));
 
@@ -281,4 +281,3 @@ void BackendWorker::run_loop() {
 }
 
 }  // namespace femtolog::logging
-

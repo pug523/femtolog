@@ -5,4 +5,3 @@
 #include "femtolog/core/base/memory_util.h"
 
 namespace femtolog::core {}  // namespace femtolog::core
-

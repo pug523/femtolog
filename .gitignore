@@ -1,92 +1,68 @@
-# Output
-/out
-
-# Cache
-__pycache__
-.cache
-
-# Editor
-/*venv
-/compile_commands.json
-.vscode
-
-# Logs
-*.log
-*.profraw
-*Zone.Identifier
-
-# Compressed files
-*.xz
-*.gz
-*.zip
+build/
+install/
+out/
+.xmake/
+.vscode/
+.cache/
+.venv/
+compile_commands.json
 
 # Prerequisites
 *.d
 
-# Compiled Object files
-*.slo
-*.lo
+# Object files
 *.o
+*.ko
 *.obj
+*.elf
+
+# Linker output
+*.ilk
+*.map
+*.exp
 
 # Precompiled Headers
 *.gch
 *.pch
 
-# Compiled Dynamic libraries
-*.so
-*.dylib
-*.dll
-
-# Fortran module files
-*.mod
-*.smod
-
-# Compiled Static libraries
-*.lai
-*.la
-*.a
+# Libraries
 *.lib
+*.a
+*.la
+*.lo
+
+# Shared objects (inc. Windows DLLs)
+*.dll
+*.so
+*.so.*
+*.dylib
 
 # Executables
 *.exe
 *.out
 *.app
+*.i*86
+*.x86_64
+*.hex
 
-*~
+# Debug files
+*.dSYM/
+*.su
+*.idb
+*.pdb
+*.profraw
+*.profdata
+*perf.data*
 
-# temporary files which can be created if a process still has a handle open of a deleted file
-.fuse_hidden*
+# Kernel Module Compile Results
+*.mod*
+*.cmd
+.tmp_versions/
+modules.order
+Module.symvers
+Mkfile.old
+dkms.conf
 
-# Metadata left by Dolphin file manager, which comes with KDE Plasma
-.directory
-
-# Linux trash folder which might appear on any partition or disk
-.Trash-*
-
-# .nfs files are created when an open file is removed but is still being accessed
-.nfs*
-
-# Log files created by default by the nohup command
-nohup.out
-
-# Swap
-[._]*.s[a-v][a-z]
-!*.svg # comment out if you don't need vector files
-[._]*.sw[a-p]
-[._]s[a-rt-v][a-z]
-[._]ss[a-gi-z]
-[._]sw[a-p]
-
-# Session
-Session.vim
-Sessionx.vim
-
-# Temporary
-.netrwhist
-*~
-# Auto-generated tag files
-tags
-# Persistent undo
-[._]*.un~
-
+# debug information files
+*.dw
+*.dwo

@@ -20,12 +20,12 @@ namespace femtolog::logging {
 
 SpmcQueue::SpmcQueue() : buffer_(nullptr), buffer_deleter_(nullptr) {}
 
-void SpmcQueue::reserve(std::size_t capacity_bytes) {
+void SpmcQueue::reserve(size_t capacity_bytes) {
   FEMTOLOG_DCHECK_GT(capacity_bytes, 0);
 
-  const std::size_t capacity = next_power_of_2(capacity_bytes);
-  constexpr std::size_t alignment = core::kCacheSize;
-  const std::size_t alloc_size = capacity + alignment;
+  const size_t capacity = next_power_of_2(capacity_bytes);
+  constexpr size_t alignment = core::kCacheSize;
+  const size_t alloc_size = capacity + alignment;
 
   std::byte* new_buffer = static_cast<std::byte*>(
       core::aligned_alloc_wrapper(alignment, alloc_size));
@@ -54,7 +54,7 @@ void SpmcQueue::reserve(std::size_t capacity_bytes) {
 }
 
 SpmcQueueStatus SpmcQueue::enqueue_bytes(const void* data_ptr,
-                                         std::size_t data_size) noexcept {
+                                         size_t data_size) noexcept {
   if (!buffer_) [[unlikely]] {
     return SpmcQueueStatus::kUninitialized;
   }
@@ -63,18 +63,17 @@ SpmcQueueStatus SpmcQueue::enqueue_bytes(const void* data_ptr,
   }
 
   // Check available space using cached value first
-  const std::size_t current_tail = tail_idx_.load(std::memory_order_relaxed);
-  const std::size_t current_commit =
-      commit_idx_.load(std::memory_order_acquire);
-  const std::size_t used_space = current_tail - current_commit;
+  const size_t current_tail = tail_idx_.load(std::memory_order_relaxed);
+  const size_t current_commit = commit_idx_.load(std::memory_order_acquire);
+  const size_t used_space = current_tail - current_commit;
 
   if (capacity_ - used_space < data_size) [[unlikely]] {
     return SpmcQueueStatus::kOverflow;
   }
 
   // Copy data to buffer (wrap around handling)
-  const std::size_t tail_pos = current_tail & mask_;
-  const std::size_t space_to_end = (mask_ + 1) - tail_pos;
+  const size_t tail_pos = current_tail & mask_;
+  const size_t space_to_end = (mask_ + 1) - tail_pos;
 
   if (data_size <= space_to_end) {
     std::memcpy(buffer_ + tail_pos, data_ptr, data_size);
@@ -92,7 +91,7 @@ SpmcQueueStatus SpmcQueue::enqueue_bytes(const void* data_ptr,
 }
 
 SpmcQueueStatus SpmcQueue::dequeue_bytes(void* data_ptr,
-                                         std::size_t data_size) noexcept {
+                                         size_t data_size) noexcept {
   if (!buffer_) [[unlikely]] {
     return SpmcQueueStatus::kUninitialized;
   }
@@ -101,11 +100,11 @@ SpmcQueueStatus SpmcQueue::dequeue_bytes(void* data_ptr,
   }
 
   // Ticket-based approach for multiple consumers
-  const std::size_t ticket =
+  const size_t ticket =
       head_idx_.fetch_add(data_size, std::memory_order_acq_rel);
 
   // Check if we have enough data available
-  const std::size_t tail = tail_idx_.load(std::memory_order_acquire);
+  const size_t tail = tail_idx_.load(std::memory_order_acquire);
   if (tail - ticket < data_size) [[unlikely]] {
     // Rewind head and return underflow
     head_idx_.fetch_sub(data_size, std::memory_order_release);
@@ -113,8 +112,8 @@ SpmcQueueStatus SpmcQueue::dequeue_bytes(void* data_ptr,
   }
 
   // Copy data from buffer (wrap around handling)
-  const std::size_t head_pos = ticket & mask_;
-  const std::size_t bytes_to_end = (mask_ + 1) - head_pos;
+  const size_t head_pos = ticket & mask_;
+  const size_t bytes_to_end = (mask_ + 1) - head_pos;
 
   if (data_size <= bytes_to_end) {
     std::memcpy(data_ptr, buffer_ + head_pos, data_size);
@@ -125,7 +124,7 @@ SpmcQueueStatus SpmcQueue::dequeue_bytes(void* data_ptr,
   }
 
   // Wait for all previous consumers to complete and update commit index
-  std::size_t expected_commit = ticket;
+  size_t expected_commit = ticket;
   while (!commit_idx_.compare_exchange_weak(expected_commit, ticket + data_size,
                                             std::memory_order_release,
                                             std::memory_order_relaxed)) {
@@ -139,7 +138,7 @@ SpmcQueueStatus SpmcQueue::dequeue_bytes(void* data_ptr,
 }
 
 SpmcQueueStatus SpmcQueue::peek_bytes(void* data_ptr,
-                                      std::size_t data_size) const noexcept {
+                                      size_t data_size) const noexcept {
   if (!buffer_) [[unlikely]] {
     return SpmcQueueStatus::kUninitialized;
   }
@@ -147,17 +146,16 @@ SpmcQueueStatus SpmcQueue::peek_bytes(void* data_ptr,
     return SpmcQueueStatus::kSizeIsZero;
   }
 
-  const std::size_t current_commit =
-      commit_idx_.load(std::memory_order_acquire);
-  const std::size_t current_tail = tail_idx_.load(std::memory_order_acquire);
+  const size_t current_commit = commit_idx_.load(std::memory_order_acquire);
+  const size_t current_tail = tail_idx_.load(std::memory_order_acquire);
 
   if (current_tail - current_commit < data_size) [[unlikely]] {
     return SpmcQueueStatus::kUnderflow;
   }
 
   // Copy data from buffer (wrap around handling)
-  const std::size_t head_pos = current_commit & mask_;
-  const std::size_t bytes_to_end = (mask_ + 1) - head_pos;
+  const size_t head_pos = current_commit & mask_;
+  const size_t bytes_to_end = (mask_ + 1) - head_pos;
 
   if (data_size <= bytes_to_end) {
     std::memcpy(data_ptr, buffer_ + head_pos, data_size);
@@ -171,8 +169,8 @@ SpmcQueueStatus SpmcQueue::peek_bytes(void* data_ptr,
 }
 
 SpmcQueueStatus SpmcQueue::enqueue_bulk(const void* const* data_ptrs,
-                                        const std::size_t* data_sizes,
-                                        std::size_t count) noexcept {
+                                        const size_t* data_sizes,
+                                        size_t count) noexcept {
   if (!buffer_) [[unlikely]] {
     return SpmcQueueStatus::kUninitialized;
   }
@@ -181,8 +179,8 @@ SpmcQueueStatus SpmcQueue::enqueue_bulk(const void* const* data_ptrs,
   }
 
   // Calculate total size
-  std::size_t total_size = 0;
-  for (std::size_t i = 0; i < count; ++i) {
+  size_t total_size = 0;
+  for (size_t i = 0; i < count; ++i) {
     total_size += data_sizes[i];
   }
 
@@ -191,21 +189,20 @@ SpmcQueueStatus SpmcQueue::enqueue_bulk(const void* const* data_ptrs,
   }
 
   // Check available space
-  const std::size_t current_tail = tail_idx_.load(std::memory_order_relaxed);
-  const std::size_t current_commit =
-      commit_idx_.load(std::memory_order_acquire);
-  const std::size_t used_space = current_tail - current_commit;
+  const size_t current_tail = tail_idx_.load(std::memory_order_relaxed);
+  const size_t current_commit = commit_idx_.load(std::memory_order_acquire);
+  const size_t used_space = current_tail - current_commit;
 
   if (capacity_ - used_space < total_size) [[unlikely]] {
     return SpmcQueueStatus::kOverflow;
   }
 
   // Copy all data
-  std::size_t offset = 0;
-  for (std::size_t i = 0; i < count; ++i) {
-    const std::size_t data_size = data_sizes[i];
-    const std::size_t tail_pos = (current_tail + offset) & mask_;
-    const std::size_t space_to_end = (mask_ + 1) - tail_pos;
+  size_t offset = 0;
+  for (size_t i = 0; i < count; ++i) {
+    const size_t data_size = data_sizes[i];
+    const size_t tail_pos = (current_tail + offset) & mask_;
+    const size_t space_to_end = (mask_ + 1) - tail_pos;
 
     if (data_size <= space_to_end) {
       std::memcpy(buffer_ + tail_pos, data_ptrs[i], data_size);
@@ -226,8 +223,8 @@ SpmcQueueStatus SpmcQueue::enqueue_bulk(const void* const* data_ptrs,
 }
 
 SpmcQueueStatus SpmcQueue::dequeue_bulk(void* const* data_ptrs,
-                                        const std::size_t* data_sizes,
-                                        std::size_t count) noexcept {
+                                        const size_t* data_sizes,
+                                        size_t count) noexcept {
   if (!buffer_) [[unlikely]] {
     return SpmcQueueStatus::kUninitialized;
   }
@@ -236,8 +233,8 @@ SpmcQueueStatus SpmcQueue::dequeue_bulk(void* const* data_ptrs,
   }
 
   // Calculate total size
-  std::size_t total_size = 0;
-  for (std::size_t i = 0; i < count; ++i) {
+  size_t total_size = 0;
+  for (size_t i = 0; i < count; ++i) {
     total_size += data_sizes[i];
   }
 
@@ -246,11 +243,11 @@ SpmcQueueStatus SpmcQueue::dequeue_bulk(void* const* data_ptrs,
   }
 
   // Ticket-based approach
-  const std::size_t ticket =
+  const size_t ticket =
       head_idx_.fetch_add(total_size, std::memory_order_acq_rel);
 
   // Check if we have enough data
-  const std::size_t tail = tail_idx_.load(std::memory_order_acquire);
+  const size_t tail = tail_idx_.load(std::memory_order_acquire);
   if (tail - ticket < total_size) [[unlikely]] {
     // Rewind head and return underflow
     head_idx_.fetch_sub(total_size, std::memory_order_release);
@@ -258,11 +255,11 @@ SpmcQueueStatus SpmcQueue::dequeue_bulk(void* const* data_ptrs,
   }
 
   // Copy all data
-  std::size_t offset = 0;
-  for (std::size_t i = 0; i < count; ++i) {
-    const std::size_t data_size = data_sizes[i];
-    const std::size_t head_pos = (ticket + offset) & mask_;
-    const std::size_t bytes_to_end = (mask_ + 1) - head_pos;
+  size_t offset = 0;
+  for (size_t i = 0; i < count; ++i) {
+    const size_t data_size = data_sizes[i];
+    const size_t head_pos = (ticket + offset) & mask_;
+    const size_t bytes_to_end = (mask_ + 1) - head_pos;
 
     if (data_size <= bytes_to_end) {
       std::memcpy(data_ptrs[i], buffer_ + head_pos, data_size);
@@ -275,7 +272,7 @@ SpmcQueueStatus SpmcQueue::dequeue_bulk(void* const* data_ptrs,
   }
 
   // Wait for all previous consumers to complete and update commit index
-  std::size_t expected_commit = ticket;
+  size_t expected_commit = ticket;
   while (!commit_idx_.compare_exchange_weak(
       expected_commit, ticket + total_size, std::memory_order_release,
       std::memory_order_relaxed)) {

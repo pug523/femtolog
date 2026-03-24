@@ -32,7 +32,7 @@ constexpr std::array<int8_t, 256> make_bracket_table() {
 }
 
 void encode_escape_impl(std::string_view input, std::string* out) {
-  const std::size_t max_size = input.size() * 2;  // worst case
+  const size_t max_size = input.size() * 2;  // worst case
   out->clear();
   out->reserve(max_size);
 
@@ -62,11 +62,11 @@ void encode_escape_impl(std::string_view input, std::string* out) {
     }
   }
 
-  out->resize(static_cast<std::size_t>(write_ptr - begin));
+  out->resize(static_cast<size_t>(write_ptr - begin));
 }
 
 void decode_escape_impl(std::string_view input, std::string* out) {
-  const std::size_t max_size = input.size();  // worst case
+  const size_t max_size = input.size();  // worst case
   out->clear();
   out->reserve(max_size);
 
@@ -74,7 +74,7 @@ void decode_escape_impl(std::string_view input, std::string* out) {
   char* write_ptr = out->data();
   char* begin = write_ptr;
 
-  for (std::size_t i = 0; i < input.size(); i++) {
+  for (size_t i = 0; i < input.size(); i++) {
     if (input[i] == '\\') {
       if (i < input.size() - 1) {
         switch (input[i + 1]) {
@@ -104,7 +104,7 @@ void decode_escape_impl(std::string_view input, std::string* out) {
     }
   }
 
-  out->resize(static_cast<std::size_t>(write_ptr - begin));
+  out->resize(static_cast<size_t>(write_ptr - begin));
 }
 
 }  // namespace
@@ -115,7 +115,7 @@ std::string encode_escape(std::string_view input) {
   return encoded;
 }
 
-std::string encode_escape(const char* s, std::size_t len) {
+std::string encode_escape(const char* s, size_t len) {
   return encode_escape(std::string_view(s, len));
 }
 
@@ -125,15 +125,15 @@ std::string decode_escape(std::string_view input) {
   return decoded;
 }
 
-std::string decode_escape(const char* s, std::size_t len) {
+std::string decode_escape(const char* s, size_t len) {
   return decode_escape(std::string_view(s, len));
 }
 
-void to_lower(char* input, std::size_t len) {
+void to_lower(char* input, size_t len) {
   if (!input) {
     return;
   }
-  for (std::size_t i = 0; i < len; i++) {
+  for (size_t i = 0; i < len; i++) {
     input[i] = to_lower(input[i]);
   }
 }
@@ -160,18 +160,18 @@ std::string to_lower(const std::string& input) {
   std::string result;
   result.resize(input.size());
 
-  for (std::size_t i = 0; i < input.size(); ++i) {
+  for (size_t i = 0; i < input.size(); ++i) {
     result[i] = to_lower(input[i]);
   }
 
   return result;
 }
 
-void to_upper(char* input, std::size_t len) {
+void to_upper(char* input, size_t len) {
   if (!input) {
     return;
   }
-  for (std::size_t i = 0; i < len; i++) {
+  for (size_t i = 0; i < len; i++) {
     input[i] = to_upper(input[i]);
   }
 }
@@ -198,14 +198,14 @@ std::string to_upper(const std::string& input) {
   std::string result;
   result.resize(input.size());
 
-  for (std::size_t i = 0; i < input.size(); ++i) {
+  for (size_t i = 0; i < input.size(); ++i) {
     result[i] = to_upper(input[i]);
   }
 
   return result;
 }
 
-std::size_t utf8_char_length(unsigned char lead) {
+size_t utf8_char_length(unsigned char lead) {
   if (lead < 0x80) {  // 0xxxxxxx
     return 1;
   } else if ((lead & 0xE0) == 0xC0) {  // 110xxxxx (2-byte)
@@ -219,7 +219,7 @@ std::size_t utf8_char_length(unsigned char lead) {
   }
 }
 
-std::string utf8_truncate(const std::string& input, std::size_t max_chars) {
+std::string utf8_truncate(const std::string& input, size_t max_chars) {
   if (max_chars == 0) {
     return "";
   }
@@ -227,14 +227,14 @@ std::string utf8_truncate(const std::string& input, std::size_t max_chars) {
     return "";
   }
 
-  std::size_t i = 0;      // byte index
-  std::size_t chars = 0;  // character count
+  size_t i = 0;      // byte index
+  size_t chars = 0;  // character count
 
   const char* data = input.data();
-  const std::size_t input_size = input.size();
+  const size_t input_size = input.size();
 
   while (i < input_size && chars < max_chars) {
-    std::size_t len = utf8_char_length(static_cast<unsigned char>(data[i]));
+    size_t len = utf8_char_length(static_cast<unsigned char>(data[i]));
     // Check if the character is valid and complete within the string boundary
     if (i + len > input_size) {
       // Incomplete character at the end, break
@@ -250,9 +250,9 @@ std::string utf8_truncate(const std::string& input, std::size_t max_chars) {
 std::queue<std::string> split_string(const std::string& input,
                                      const std::string& delimiter) {
   std::queue<std::string> result;
-  std::size_t pos = 0;
-  const std::size_t delimiter_length = delimiter.size();
-  const std::size_t input_length = input.size();
+  size_t pos = 0;
+  const size_t delimiter_length = delimiter.size();
+  const size_t input_length = input.size();
 
   if (delimiter_length == 0) {
     if (!input.empty()) {
@@ -264,7 +264,7 @@ std::queue<std::string> split_string(const std::string& input,
     return result;
   }
 
-  std::size_t next_pos;
+  size_t next_pos;
   while (pos < input_length) {
     next_pos = input.find(delimiter, pos);
     if (next_pos == std::string::npos) {
@@ -281,8 +281,7 @@ std::queue<std::string> split_string(const std::string& input,
   return result;
 }
 
-std::string remove_bracket(const std::string& input,
-                           std::size_t max_nest_size) {
+std::string remove_bracket(const std::string& input, size_t max_nest_size) {
   if (input.empty()) {
     return {};
   }
@@ -292,7 +291,7 @@ std::string remove_bracket(const std::string& input,
   output.resize(input.size());
 
   std::vector<char> stack(std::min(input.size() / 2, max_nest_size));
-  std::size_t depth = 0;
+  size_t depth = 0;
   char* write_ptr = output.data();
 
   const char* read_ptr = input.data();
@@ -329,20 +328,18 @@ std::string remove_bracket(const std::string& input,
     }
   }
 
-  output.resize(write_ptr - output.data());
+  output.resize(static_cast<size_t>(write_ptr - output.data()));
   return output;
 }
 
-std::size_t safe_strlen(const char* str) {
+size_t safe_strlen(const char* str) {
   if (!str) {
     return 0;
   }
   return std::strlen(str);
 }
 
-void format_address_safe(uintptr_t addr,
-                         char* buffer,
-                         std::size_t buffer_size) {
+void format_address_safe(uintptr_t addr, char* buffer, size_t buffer_size) {
   if (!buffer || buffer_size < (sizeof(uintptr_t) * 2 + 3)) {
     if (buffer && buffer_size > 0) {
       buffer[0] = '\0';
@@ -366,16 +363,15 @@ void format_address_safe(uintptr_t addr,
 
 void padding(char*& cursor,
              const char* const end,
-             std::size_t current_len,
-             std::size_t align_len) {
-  std::size_t pad_len = (align_len > current_len) ? align_len - current_len : 0;
-  std::size_t to_pad =
-      std::min(pad_len, static_cast<std::size_t>(end - cursor));
+             size_t current_len,
+             size_t align_len) {
+  size_t pad_len = (align_len > current_len) ? align_len - current_len : 0;
+  size_t to_pad = std::min(pad_len, static_cast<size_t>(end - cursor));
   std::memset(cursor, ' ', to_pad);
   cursor += to_pad;
 }
 
-std::size_t write_raw(char*& dest, const char* source, std::size_t len) {
+size_t write_raw(char*& dest, const char* source, size_t len) {
   if (len == 0) {
     return 0;
   }
