@@ -13,13 +13,13 @@
 #include "base/log_level.h"
 #include "base/string_registry.h"
 #include "build/build_flag.h"
-#include "femtolog/femtolog.h"
-#include "femtolog/options.h"
+#include "femtolog.h"
 #include "fmt/args.h"
 #include "fmt/core.h"
 #include "fmt/format.h"
 #include "logging/impl/args_deserializer.h"
 #include "logging/impl/internal_logger.h"
+#include "options.h"
 
 #if FEMTOLOG_ENABLE_AVX2
 #include <immintrin.h>

@@ -307,7 +307,7 @@ target("femtolog")
   add_files("src/**.cc")
   add_packages("fmt", { public = true })
 
-  add_headerfiles("src/(**.h)")
+  add_headerfiles("src/(**.h)", { prefixdir = "femtolog" })
 
   set_default(true)
 target_end()

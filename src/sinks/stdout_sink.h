@@ -12,8 +12,8 @@
 #include "base/log_level.h"
 #include "base/style.h"
 #include "build/build_flag.h"
-#include "femtolog/options.h"
 #include "logging/impl/internal_logger.h"
+#include "options.h"
 #include "sinks/sink_base.h"
 
 #if FEMTOLOG_IS_WINDOWS

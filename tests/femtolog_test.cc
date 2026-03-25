@@ -5,7 +5,7 @@
 #include <string>
 
 #include "catch2/catch_test_macros.hpp"
-#include "femtolog/logger.h"
+#include "logger.h"
 #include "sinks/file_sink.h"
 #include "sinks/json_lines_sink.h"
 #include "sinks/stdout_sink.h"

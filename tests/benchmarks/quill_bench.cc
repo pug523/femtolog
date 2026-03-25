@@ -10,7 +10,7 @@
 #include "benchmarks/benchmark_util.h"
 #include "catch2/benchmark/catch_benchmark.hpp"
 #include "catch2/catch_test_macros.hpp"
-#include "femtolog/options.h"
+#include "options.h"
 
 #define QUILL_NO_EXCEPTIONS
 #include "quill/Backend.h"

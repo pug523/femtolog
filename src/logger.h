@@ -10,9 +10,9 @@
 #include <utility>
 
 #include "base/format_util.h"
-#include "femtolog/options.h"
 #include "logging/impl/backend_worker.h"
 #include "logging/impl/internal_logger.h"
+#include "options.h"
 #include "sinks/sink_base.h"
 
 namespace femtolog {

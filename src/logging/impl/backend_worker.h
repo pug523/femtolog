@@ -10,9 +10,9 @@
 
 #include "base/log_entry.h"
 #include "base/string_registry.h"
-#include "femtolog/options.h"
 #include "logging/impl/args_deserializer.h"
 #include "logging/impl/spsc_queue.h"
+#include "options.h"
 #include "sinks/sink_base.h"
 
 namespace femtolog::logging {

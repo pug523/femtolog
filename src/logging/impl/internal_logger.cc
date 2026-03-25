@@ -6,8 +6,8 @@
 
 #include <utility>
 
-#include "femtolog/options.h"
 #include "logging/impl/backend_worker.h"
+#include "options.h"
 
 namespace femtolog::logging {
 

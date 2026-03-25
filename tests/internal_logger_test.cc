@@ -15,7 +15,7 @@
 #include "base/log_entry.h"
 #include "base/log_level.h"
 #include "catch2/catch_all.hpp"
-#include "femtolog/options.h"
+#include "options.h"
 #include "sinks/sink_base.h"
 
 namespace femtolog::logging {

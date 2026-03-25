@@ -59,7 +59,7 @@ Designed for modern C++ projects where every nanosecond counts.
 ### Basic Example
 
 ```cpp
-#include "femtolog/femtolog.h"
+#include "femtolog.h"
 
 using namespace femtolog;
 
@@ -83,7 +83,7 @@ int main() {
 ### Advanced Example
 
 ```cpp
-#include "femtolog/femtolog.h"
+#include "femtolog.h"
 
 int main() {
   // Get thread local logger instance.
