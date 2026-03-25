@@ -10,7 +10,7 @@
 #include <cstdlib>
 #include <cstring>
 
-#include "femtolog/build/build_flag.h"
+#include "build/build_flag.h"
 
 #if FEMTOLOG_IS_WINDOWS
 #include <windows.h>

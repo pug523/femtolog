@@ -7,7 +7,7 @@
 #include <cstddef>
 #include <string>
 
-#include "femtolog/build/build_flag.h"
+#include "build/build_flag.h"
 
 namespace femtolog::base {
 

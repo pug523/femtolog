@@ -8,12 +8,12 @@
 #include <thread>
 #include <vector>
 
-#include "femtolog/base/log_entry.h"
-#include "femtolog/base/string_registry.h"
-#include "femtolog/logging/impl/args_deserializer.h"
-#include "femtolog/logging/impl/spsc_queue.h"
+#include "base/log_entry.h"
+#include "base/string_registry.h"
 #include "femtolog/options.h"
-#include "femtolog/sinks/sink_base.h"
+#include "logging/impl/args_deserializer.h"
+#include "logging/impl/spsc_queue.h"
+#include "sinks/sink_base.h"
 
 namespace femtolog::logging {
 

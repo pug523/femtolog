@@ -2,7 +2,7 @@
 // This source code is licensed under the Apache License, Version 2.0
 // which can be found in the LICENSE file.
 
-#include "femtolog/logging/impl/internal_logger.h"
+#include "logging/impl/internal_logger.h"
 
 #include <chrono>
 #include <memory>
@@ -12,11 +12,11 @@
 #include <utility>
 #include <vector>
 
+#include "base/log_entry.h"
+#include "base/log_level.h"
 #include "catch2/catch_all.hpp"
-#include "femtolog/base/log_entry.h"
-#include "femtolog/base/log_level.h"
 #include "femtolog/options.h"
-#include "femtolog/sinks/sink_base.h"
+#include "sinks/sink_base.h"
 
 namespace femtolog::logging {
 

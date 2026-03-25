@@ -6,7 +6,7 @@
 
 #include "catch2/benchmark/catch_benchmark.hpp"
 #include "catch2/catch_test_macros.hpp"
-#include "femtolog/logging/impl/args_serializer.h"
+#include "logging/impl/args_serializer.h"
 
 namespace femtolog::logging {
 

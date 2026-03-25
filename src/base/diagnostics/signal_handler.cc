@@ -2,15 +2,15 @@
 // This source code is licensed under the Apache License, Version 2.0
 // which can be found in the LICENSE file.
 
-#include "femtolog/base/diagnostics/signal_handler.h"
+#include "base/diagnostics/signal_handler.h"
 
 #include <csignal>
 #include <ctime>
 #include <iostream>
 #include <thread>
 
-#include "femtolog/base/diagnostics/stack_trace.h"
-#include "femtolog/build/build_flag.h"
+#include "base/diagnostics/stack_trace.h"
+#include "build/build_flag.h"
 
 #if FEMTOLOG_IS_WINDOWS
 #include <windows.h>

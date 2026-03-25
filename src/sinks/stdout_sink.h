@@ -8,13 +8,13 @@
 #include <memory>
 #include <mutex>
 
-#include "femtolog/base/log_entry.h"
-#include "femtolog/base/log_level.h"
-#include "femtolog/base/style.h"
-#include "femtolog/build/build_flag.h"
-#include "femtolog/logging/impl/internal_logger.h"
+#include "base/log_entry.h"
+#include "base/log_level.h"
+#include "base/style.h"
+#include "build/build_flag.h"
 #include "femtolog/options.h"
-#include "femtolog/sinks/sink_base.h"
+#include "logging/impl/internal_logger.h"
+#include "sinks/sink_base.h"
 
 #if FEMTOLOG_IS_WINDOWS
 #include <io.h>

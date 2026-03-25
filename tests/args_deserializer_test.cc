@@ -2,13 +2,13 @@
 // This source code is licensed under the Apache License, Version 2.0
 // which can be found in the LICENSE file.
 
-#include "femtolog/logging/impl/args_deserializer.h"
+#include "logging/impl/args_deserializer.h"
 
 #include <string>
 
 #include "catch2/catch_test_macros.hpp"
-#include "femtolog/logging/impl/args_serializer.h"
 #include "fmt/format.h"
+#include "logging/impl/args_serializer.h"
 
 namespace femtolog::logging {
 

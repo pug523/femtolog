@@ -9,8 +9,8 @@
 #include <memory>
 #include <new>
 
-#include "femtolog/base/check.h"
-#include "femtolog/base/memory_util.h"
+#include "base/check.h"
+#include "base/memory_util.h"
 
 namespace femtolog::logging {
 

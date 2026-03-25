@@ -10,10 +10,10 @@
 #include <new>
 #include <string>
 
-#include "femtolog/base/check.h"
-#include "femtolog/base/format_util.h"
-#include "femtolog/base/memory_util.h"
-#include "femtolog/base/string_registry.h"
+#include "base/check.h"
+#include "base/format_util.h"
+#include "base/memory_util.h"
+#include "base/string_registry.h"
 
 namespace femtolog::base {
 

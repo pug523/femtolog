@@ -4,8 +4,8 @@
 
 #pragma once
 
-#include "femtolog/base/log_entry.h"
-#include "femtolog/sinks/sink_base.h"
+#include "base/log_entry.h"
+#include "sinks/sink_base.h"
 
 namespace femtolog {
 

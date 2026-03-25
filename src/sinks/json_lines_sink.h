@@ -10,11 +10,11 @@
 #include <memory>
 #include <string>
 
-#include "femtolog/base/file_util.h"
-#include "femtolog/base/log_entry.h"
-#include "femtolog/base/log_level.h"
-#include "femtolog/build/build_flag.h"
-#include "femtolog/sinks/sink_base.h"
+#include "base/file_util.h"
+#include "base/log_entry.h"
+#include "base/log_level.h"
+#include "build/build_flag.h"
+#include "sinks/sink_base.h"
 
 #if FEMTOLOG_IS_WINDOWS
 #include <io.h>

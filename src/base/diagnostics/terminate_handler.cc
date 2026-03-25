@@ -2,11 +2,11 @@
 // This source code is licensed under the Apache License, Version 2.0
 // which can be found in the LICENSE file.
 
-#include "femtolog/base/diagnostics/terminate_handler.h"
+#include "base/diagnostics/terminate_handler.h"
 
 #include <iostream>
 
-#include "femtolog/base/diagnostics/stack_trace.h"
+#include "base/diagnostics/stack_trace.h"
 
 namespace femtolog::base {
 

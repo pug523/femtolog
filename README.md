@@ -259,7 +259,7 @@ Need to log to a database, a network socket, or a ring buffer?
 To define a custom sink, just inherit from `SinkBase` and implement `on_log()`:
 
 ```cpp
-#include "femtolog/sinks/sink_base.h"
+#include "sinks/sink_base.h"
 
 class MySink : public femtolog::SinkBase {
  public:

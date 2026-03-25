@@ -9,8 +9,8 @@
 #include <tuple>
 #include <utility>
 
-#include "femtolog/base/serialize_util.h"
-#include "femtolog/base/string_registry.h"
+#include "base/serialize_util.h"
+#include "base/string_registry.h"
 #include "fmt/args.h"
 
 namespace femtolog::logging {

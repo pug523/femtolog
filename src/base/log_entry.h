@@ -7,7 +7,7 @@
 #include <algorithm>
 #include <string_view>
 
-#include "femtolog/base/log_level.h"
+#include "base/log_level.h"
 
 namespace femtolog::base {
 

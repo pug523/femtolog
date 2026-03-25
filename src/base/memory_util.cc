@@ -2,6 +2,6 @@
 // This source code is licensed under the Apache License, Version 2.0
 // which can be found in the LICENSE file.
 
-#include "femtolog/base/memory_util.h"
+#include "base/memory_util.h"
 
 namespace femtolog::base {}  // namespace femtolog::base

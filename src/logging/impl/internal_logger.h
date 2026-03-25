@@ -8,14 +8,14 @@
 #include <new>
 #include <utility>
 
-#include "femtolog/base/log_entry.h"
-#include "femtolog/base/log_level.h"
-#include "femtolog/base/string_registry.h"
-#include "femtolog/logging/impl/args_serializer.h"
-#include "femtolog/logging/impl/backend_worker.h"
-#include "femtolog/logging/impl/spsc_queue.h"
+#include "base/log_entry.h"
+#include "base/log_level.h"
+#include "base/string_registry.h"
 #include "femtolog/options.h"
-#include "femtolog/sinks/sink_base.h"
+#include "logging/impl/args_serializer.h"
+#include "logging/impl/backend_worker.h"
+#include "logging/impl/spsc_queue.h"
+#include "sinks/sink_base.h"
 
 namespace femtolog::logging {
 

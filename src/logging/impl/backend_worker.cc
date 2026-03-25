@@ -2,24 +2,24 @@
 // This source code is licensed under the Apache License, Version 2.0
 // which can be found in the LICENSE file.
 
-#include "femtolog/logging/impl/backend_worker.h"
+#include "logging/impl/backend_worker.h"
 
 #include <iostream>
 #include <limits>
 #include <utility>
 #include <vector>
 
-#include "femtolog/base/check.h"
-#include "femtolog/base/log_level.h"
-#include "femtolog/base/string_registry.h"
-#include "femtolog/build/build_flag.h"
+#include "base/check.h"
+#include "base/log_level.h"
+#include "base/string_registry.h"
+#include "build/build_flag.h"
 #include "femtolog/femtolog.h"
-#include "femtolog/logging/impl/args_deserializer.h"
-#include "femtolog/logging/impl/internal_logger.h"
 #include "femtolog/options.h"
 #include "fmt/args.h"
 #include "fmt/core.h"
 #include "fmt/format.h"
+#include "logging/impl/args_deserializer.h"
+#include "logging/impl/internal_logger.h"
 
 #if FEMTOLOG_ENABLE_AVX2
 #include <immintrin.h>

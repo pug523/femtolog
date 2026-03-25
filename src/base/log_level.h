@@ -7,8 +7,8 @@
 #include <cstdint>
 #include <string>
 
-#include "femtolog/base/string_util.h"
-#include "femtolog/base/style.h"
+#include "base/string_util.h"
+#include "base/style.h"
 
 namespace femtolog::base {
 

@@ -10,9 +10,9 @@
 #include <string_view>
 #include <vector>
 
-#include "femtolog/base/check.h"
-#include "femtolog/base/format_util.h"
-#include "femtolog/build/build_flag.h"
+#include "base/check.h"
+#include "base/format_util.h"
+#include "build/build_flag.h"
 
 namespace femtolog::base {
 

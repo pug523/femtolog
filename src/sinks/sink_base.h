@@ -7,10 +7,10 @@
 #include <cstdint>
 #include <ctime>
 
-#include "femtolog/base/check.h"
-#include "femtolog/base/format_util.h"
-#include "femtolog/base/log_entry.h"
-#include "femtolog/build/build_flag.h"
+#include "base/check.h"
+#include "base/format_util.h"
+#include "base/log_entry.h"
+#include "build/build_flag.h"
 #include "fmt/chrono.h"
 #include "fmt/format.h"
 

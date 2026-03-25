@@ -6,7 +6,7 @@
 
 #include <string>
 
-#include "femtolog/base/file_util.h"
+#include "base/file_util.h"
 
 namespace femtolog::bench {
 

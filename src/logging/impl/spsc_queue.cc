@@ -2,15 +2,15 @@
 // This source code is licensed under the Apache License, Version 2.0
 // which can be found in the LICENSE file.
 
-#include "femtolog/logging/impl/spsc_queue.h"
+#include "logging/impl/spsc_queue.h"
 
 #include <cstring>
 #include <memory>
 #include <new>
 
-#include "femtolog/base/check.h"
-#include "femtolog/base/memory_util.h"
-#include "femtolog/build/build_flag.h"
+#include "base/check.h"
+#include "base/memory_util.h"
+#include "build/build_flag.h"
 
 namespace femtolog::logging {
 

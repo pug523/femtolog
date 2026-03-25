@@ -8,7 +8,7 @@
 #include <cstdint>
 #include <string_view>
 
-#include "femtolog/build/build_flag.h"
+#include "build/build_flag.h"
 #include "fmt/args.h"
 #include "fmt/core.h"
 #include "fmt/format.h"

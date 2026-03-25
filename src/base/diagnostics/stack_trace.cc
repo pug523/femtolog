@@ -2,17 +2,17 @@
 // This source code is licensed under the Apache License, Version 2.0
 // which can be found in the LICENSE file.
 
-#include "femtolog/base/diagnostics/stack_trace.h"
+#include "base/diagnostics/stack_trace.h"
 
 #include <algorithm>
 #include <cstdint>
 #include <cstdio>
 #include <string>
 
-#include "femtolog/base/diagnostics/stack_trace_entry.h"
-#include "femtolog/base/file_util.h"
-#include "femtolog/base/string_util.h"
-#include "femtolog/build/build_flag.h"
+#include "base/diagnostics/stack_trace_entry.h"
+#include "base/file_util.h"
+#include "base/string_util.h"
+#include "build/build_flag.h"
 
 #if FEMTOLOG_IS_WINDOWS
 // clang-format off

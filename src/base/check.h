@@ -6,8 +6,8 @@
 
 #include <iostream>
 
-#include "femtolog/base/string_util.h"
-#include "femtolog/build/build_flag.h"
+#include "base/string_util.h"
+#include "build/build_flag.h"
 
 namespace femtolog::base {
 

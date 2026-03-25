@@ -2,15 +2,15 @@
 // This source code is licensed under the Apache License, Version 2.0
 // which can be found in the LICENSE file.
 
-#include "femtolog/base/file_util.h"
+#include "base/file_util.h"
 
 #include <limits.h>
 
 #include <chrono>
 #include <utility>
 
-#include "femtolog/base/check.h"
-#include "femtolog/build/build_flag.h"
+#include "base/check.h"
+#include "build/build_flag.h"
 
 #if FEMTOLOG_IS_WINDOWS
 #define WIN32_LEAN_AND_MEAN

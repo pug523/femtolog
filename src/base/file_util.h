@@ -10,7 +10,7 @@
 #include <string>
 #include <vector>
 
-#include "femtolog/build/build_flag.h"
+#include "build/build_flag.h"
 
 #if FEMTOLOG_ENABLE_AVX2
 #include <immintrin.h>

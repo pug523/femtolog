@@ -12,13 +12,13 @@
 #include <string>
 #include <string_view>
 
-#include "femtolog/base/check.h"
-#include "femtolog/base/format_util.h"
-#include "femtolog/base/memory_util.h"
-#include "femtolog/base/serialize_util.h"
-#include "femtolog/base/string_registry.h"
-#include "femtolog/build/build_flag.h"
-#include "femtolog/logging/impl/args_deserializer.h"
+#include "base/check.h"
+#include "base/format_util.h"
+#include "base/memory_util.h"
+#include "base/serialize_util.h"
+#include "base/string_registry.h"
+#include "build/build_flag.h"
+#include "logging/impl/args_deserializer.h"
 
 namespace femtolog::logging {
 

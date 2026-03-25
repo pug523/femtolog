@@ -8,8 +8,8 @@
 
 #include "catch2/benchmark/catch_benchmark.hpp"
 #include "catch2/catch_test_macros.hpp"
-#include "femtolog/logging/impl/backend_worker.h"
-#include "femtolog/sinks/null_sink.h"
+#include "logging/impl/backend_worker.h"
+#include "sinks/null_sink.h"
 
 namespace femtolog::logging {
 

@@ -11,9 +11,9 @@
 #include "catch2/catch_test_macros.hpp"
 #include "femtolog/logger.h"
 #include "femtolog/options.h"
-#include "femtolog/sinks/file_sink.h"
-#include "femtolog/sinks/null_sink.h"
-#include "femtolog/sinks/stdout_sink.h"
+#include "sinks/file_sink.h"
+#include "sinks/null_sink.h"
+#include "sinks/stdout_sink.h"
 
 namespace femtolog {
 

@@ -2,12 +2,12 @@
 // This source code is licensed under the Apache License, Version 2.0
 // which can be found in the LICENSE file.
 
-#include "femtolog/base/diagnostics/stack_trace_entry.h"
+#include "base/diagnostics/stack_trace_entry.h"
 
 #include <cstddef>
 #include <cstdio>
 
-#include "femtolog/base/string_util.h"
+#include "base/string_util.h"
 
 namespace femtolog::base {
 

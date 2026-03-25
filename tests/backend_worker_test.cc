@@ -2,14 +2,14 @@
 // This source code is licensed under the Apache License, Version 2.0
 // which can be found in the LICENSE file.
 
-#include "femtolog/logging/impl/backend_worker.h"
+#include "logging/impl/backend_worker.h"
 
 #include <limits>
 #include <memory>
 #include <utility>
 
 #include "catch2/catch_test_macros.hpp"
-#include "femtolog/sinks/null_sink.h"
+#include "sinks/null_sink.h"
 
 namespace femtolog::logging {
 

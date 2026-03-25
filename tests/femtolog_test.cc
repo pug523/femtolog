@@ -6,9 +6,9 @@
 
 #include "catch2/catch_test_macros.hpp"
 #include "femtolog/logger.h"
-#include "femtolog/sinks/file_sink.h"
-#include "femtolog/sinks/json_lines_sink.h"
-#include "femtolog/sinks/stdout_sink.h"
+#include "sinks/file_sink.h"
+#include "sinks/json_lines_sink.h"
+#include "sinks/stdout_sink.h"
 
 TEST_CASE("README Basic Example", "[FemtoLogTest]") {
   // NOLINTNEXTLINE(build/namespaces)
