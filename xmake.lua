@@ -209,13 +209,32 @@ after_run( function (target)
   end
 end)
 
+-- package
+package("femtolog")
+    set_homepage("https://github.com/pug523/femtolog")
+    set_description("A fast C++20 logging library")
+    set_license("Apache-2.0")
+
+    add_deps("fmt 12.1.0")
+    on_install( function (package)
+        local configs = { }
+        import("package.tools.xmake").install(package, configs)
+    end)
+
+    on_test( function (package)
+        package:check_cxxsnippets({ test = [[
+            #include <femtolog/femtolog.h>
+            void test() { /* check symbols */ }
+        ]] }, { configs = { languages = "c++20" } })
+    end)
+package_end()
 -- targets
 target("femtolog.root_config")
   set_kind("phony", { public = true })
   set_warnings("all", "extra", "error", "pedantic", { public = true })
   add_cxxflags("-Wshadow", "-Wconversion", "-Wsign-conversion", "-Wnull-dereference", "-Wformat=2", { public = true })
   set_exceptions("none", { public = true })
-  add_cxxflags("-fno-exceptions", "-fno-rtti", { public = true })
+  add_cxxflags("-fno-exceptions", "-fno-rtti", "-fPIC", { public = true })
   add_cxxflags("-fstack-protector-strong", { public = true })
   add_defines("__STDC_CONSTANT_MACROS", "__STDC_FORMAT_MACROS", { public = true })
   add_defines("FEMTOLOG_PROJECT_VERSION=\"" .. project_version .. "\"", { public = true })
@@ -283,10 +302,13 @@ target("femtolog.root_config")
 target_end()
 
 target("femtolog")
-  add_deps("femtolog.root_config")
+  add_deps("femtolog.root_config", { public = false })
   set_kind("static")
   add_files("src/**.cc")
   add_packages("fmt", { public = true })
+
+  add_headerfiles("src/(**.h)")
+
   set_default(true)
 target_end()
 
@@ -306,5 +328,7 @@ target("tests")
   set_default(false)
 
   -- catch2 uses c2y extension in their macro
-  add_cxxflags("-Wno-c2y-extensions")
+  if is_clang then
+    add_cxxflags("-Wno-c2y-extensions")
+  end
 target_end()
