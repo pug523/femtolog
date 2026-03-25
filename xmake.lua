@@ -15,7 +15,8 @@ option("optreport", { default = false, description = "report optimization result
 option("sanitizers", { default = false, description = "enable address/undefined behaviour/leak sanitizer" })
 option("timetrace", { default = false, description = "generate timetrace json that can be see with perfetto ui" })
 option("native", { default = false, description = "native architecture optimization" })
-option("unitybuild", { default = false, description = "enalbe unity build to shorten build time" })
+option("unitybuild", { default = false, description = "enable unity build to shorten build time" })
+option("tests", { default = false, description = "build unit tests and benchmarks" })
 option("stdlib", { default = "libstdc++", description = "stl to use" })
 
 add_rules("mode.debug", "mode.release", "mode.releasedbg")
@@ -28,38 +29,52 @@ set_encodings("utf-8") -- target
 
 local is_clang = has_config("toolchain") and (get_config("toolchain") == "clang" or get_config("toolchain") == "llvm")
 
-local catch2_configs = { }
 local fmtlib_configs = { }
-local zlib_configs = { }
+-- local zlib_configs = { }
+
+local catch2_configs = { }
+local logger_configs = { }
 
 -- only apply stdlib flags for clang
 if has_config("stdlib") and is_clang then
-  table.join2(catch2_configs, {
+  local stdlib_config = {
     cxxflags = "-stdlib=" .. get_config("stdlib"),
     ldflags = "-stdlib=" .. get_config("stdlib"),
-  })
-  table.join2(fmtlib_configs, {
-    cxxflags = "-stdlib=" .. get_config("stdlib"),
-    ldflags = "-stdlib=" .. get_config("stdlib"),
-  })
-  table.join2(zlib_configs, {
-    cxxflags = "-stdlib=" .. get_config("stdlib"),
-    ldflags = "-stdlib=" .. get_config("stdlib"),
-  })
+  }
+  table.join2(fmtlib_configs, stdlib_config)
+  -- table.join2(zlib_configs, stdlib_config)
+
+  table.join2(catch2_configs, stdlib_config)
+  table.join2(logger_configs, stdlib_config)
 end
 
-add_requires("catch2 v3.12.0", {
-  system = false,
-  configs = catch2_configs,
-})
-add_requires("fmt 10.2.1", {
+add_requires("fmt 12.1.0", {
   system = false,
   configs = fmtlib_configs,
 })
-add_requires("zlib v1.3.1", {
-  system = false,
-  configs = zlib_configs,
-})
+-- add_requires("zlib v1.3.2", {
+--   system = false,
+--   configs = zlib_configs,
+-- })
+
+if has_config("tests") then
+  add_requires("catch2 v3.13.0", {
+    system = false,
+    configs = catch2_configs,
+  })
+  add_requires("quill v11.1.0", {
+    system = false,
+    configs = logger_configs,
+  })
+  add_requires("spdlog 1.17.0", {
+    system = false,
+    configs = logger_configs,
+  })
+  add_requires("g3log 2.6", {
+    system = false,
+    configs = logger_configs,
+  })
+end
 
 -- tasks
 task("format")
@@ -71,6 +86,7 @@ task("format")
   on_run( function ()
     local files = os.files("src/**.cc")
     table.join2(files, os.files("src/**.h"))
+    table.join2(files, os.files("include/**.h"))
     table.join2(files, os.files("tests/**.cc"))
     table.join2(files, os.files("tests/**.h"))
 
@@ -97,11 +113,12 @@ task("lint")
   })
   on_run( function ()
     os.run("uv sync")
-    local result = os.iorun("uv run cpplint --recursive src tests"):trim()
+    local result = os.iorun("uv run cpplint --recursive src include tests"):trim()
     print(result)
 
     local files = os.files("src/**.cc")
     table.join2(files, os.files("src/**.h"))
+    table.join2(files, os.files("include/**.h"))
     table.join2(files, os.files("tests/**.cc"))
     table.join2(files, os.files("tests/**.h"))
 
@@ -206,6 +223,9 @@ target("femtolog.root_config")
   add_defines("FEMTOLOG_PROJECT_VERSION=\"" .. project_version .. "\"", { public = true })
   add_includedirs("src", "include", "third_party", { public = true })
 
+  -- TODO: Remove this and add SIMD dynamic dispatch
+  add_defines("FEMTOLOG_ENABLE_AVX2=1", { public = true })
+
   if is_plat("linux") then
     add_cxxflags("-fcf-protection=full", "-fPIE", { public = true })
     add_ldflags("-pie", { public = true })
@@ -221,6 +241,7 @@ target("femtolog.root_config")
   if is_mode("debug") then
     set_symbols("debug", { public = true })
     set_optimize("none", { public = true })
+    add_cxxflags("-fno-omit-frame-pointer", "-rdynamic", "-g3", { public = true })
     add_defines("FEMTOLOG_IS_DEBUG=1", "FEMTOLOG_IS_RELEASE=0", "LLVM_ENABLE_STATS", "LLVM_ENABLE_DUMP", { public = true })
     if has_config("sanitizers") and get_config("sanitizers") and not is_plat("windows") then
       set_policy("build.sanitizer.address", true)
@@ -263,20 +284,26 @@ target("femtolog.root_config")
   end
 target_end()
 
-target("p")
+target("femtolog")
   add_deps("femtolog.root_config")
   set_kind("static")
   add_files("src/**.cc")
-  add_packages("fmt")
+  add_packages("fmt", { public = true })
   set_default(true)
 target_end()
 
 target("tests")
+  set_enabled(has_config("tests"))
   add_deps("femtolog.root_config")
   set_kind("binary")
   add_files("tests/**.cc")
-  add_deps("p")
+  add_includedirs("tests")
+  add_deps("femtolog")
   add_packages("catch2")
+
+  -- for logger benchmarks
+  add_packages("quill", "spdlog", "g3log")
+
   set_group("test")
   set_default(false)
 

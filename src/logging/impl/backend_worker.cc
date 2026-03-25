@@ -9,10 +9,10 @@
 #include <utility>
 #include <vector>
 
+#include "femtolog/base/check.h"
 #include "femtolog/base/log_level.h"
 #include "femtolog/base/string_registry.h"
 #include "femtolog/build/build_flag.h"
-#include "femtolog/core/check.h"
 #include "femtolog/femtolog.h"
 #include "femtolog/logging/impl/args_deserializer.h"
 #include "femtolog/logging/impl/internal_logger.h"
@@ -147,13 +147,14 @@ inline bool BackendWorker::read_and_process_one() {
     return false;
   }
 
-  const size_t total_size = sizeof(LogEntry) + payload_len;
+  const size_t total_size = sizeof(base::LogEntry) + payload_len;
   FEMTOLOG_DCHECK_GE(queue_->size(), total_size);
   if (queue_->dequeue_bytes(dequeue_buffer_ptr_, total_size) !=
       SpscQueueStatus::kOk) {
     return false;
   }
-  LogEntry* entry = reinterpret_cast<LogEntry*>(dequeue_buffer_ptr_);
+  base::LogEntry* entry =
+      reinterpret_cast<base::LogEntry*>(dequeue_buffer_ptr_);
   process_log_entry(entry);
   return true;
 }
@@ -222,13 +223,13 @@ void BackendWorker::flush_impl() {
   }
 }
 
-void BackendWorker::process_log_entry(LogEntry* entry) {
+void BackendWorker::process_log_entry(base::LogEntry* entry) {
   FEMTOLOG_DCHECK(!!entry);
-  entry->timestamp_ns = timestamp_ns();
+  entry->timestamp_ns = base::timestamp_ns();
 
   const uint16_t format_id = entry->format_id;
 
-  if (format_id == kLiteralLogStringId) {
+  if (format_id == base::kLiteralLogStringId) {
     constexpr const size_t kBufSize = kMaxPayloadSize;
     char buf[kBufSize];
     const size_t n = entry->copy_raw_payload(buf, kBufSize);
@@ -241,7 +242,7 @@ void BackendWorker::process_log_entry(LogEntry* entry) {
     format_buffer_.clear();
 
     const auto header =
-        reinterpret_cast<const SerializedArgsHeader*>(entry->payload());
+        reinterpret_cast<const base::SerializedArgsHeader*>(entry->payload());
 
     // NOLINTNEXTLINE
     if (!header->deserialize_and_format_func || !header->format_func)

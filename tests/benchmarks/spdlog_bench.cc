@@ -7,8 +7,11 @@
 #include <string>
 #include <thread>
 
-#include "bench/benchmark_util.h"
-#include "benchmark/benchmark.h"
+#include "benchmarks/benchmark_util.h"
+#include "catch2/benchmark/catch_benchmark.hpp"
+#include "catch2/catch_test_macros.hpp"
+
+#define SPDLOG_NO_EXCEPTIONS
 #include "spdlog/sinks/basic_file_sink.h"
 #include "spdlog/sinks/null_sink.h"
 #include "spdlog/spdlog.h"
@@ -20,9 +23,6 @@ namespace {
 std::shared_ptr<logger> setup_logger() {
   auto null_sink = std::make_shared<sinks::null_sink_mt>();
   auto l = std::make_shared<logger>("spd", null_sink);
-  // auto file_sink = std::make_shared<sinks::basic_file_sink_mt>(
-  //     femtolog::bench::get_benchmark_log_path("spdlog.log"));
-  // auto l = std::make_shared<logger>("spd", file_sink);
   set_default_logger(l);
   set_level(level::info);
 
@@ -30,68 +30,51 @@ std::shared_ptr<logger> setup_logger() {
   return l;
 }
 
-void spdlog_info_literal(benchmark::State& state) {
+TEST_CASE("spdlog logging benchmarks", "[benchmark][logger][spdlog][.]") {
   auto l = setup_logger();
-  for (auto _ : state) {
+
+  BENCHMARK("spdlog_info_literal") {
     SPDLOG_INFO("Benchmark test message");
-  }
-}
-BENCHMARK(spdlog_info_literal);
+    return;
+  };
 
-void spdlog_info_format_int(benchmark::State& state) {
-  auto l = setup_logger();
-  for (auto _ : state) {
+  BENCHMARK("spdlog_info_format_int") {
     SPDLOG_INFO("Value: {}", 123);
-  }
-}
-BENCHMARK(spdlog_info_format_int);
+    return;
+  };
 
-void spdlog_info_format_multi_int(benchmark::State& state) {
-  auto l = setup_logger();
-  for (auto _ : state) {
+  BENCHMARK("spdlog_info_format_multi_int") {
     SPDLOG_INFO("A: {}, B: {}, C: {}", 1, 2, 3);
-  }
-}
-BENCHMARK(spdlog_info_format_multi_int);
+    return;
+  };
 
-void spdlog_info_format_small_string(benchmark::State& state) {
-  auto l = setup_logger();
-  std::string user = "benchmark_user";
-  for (auto _ : state) {
+  BENCHMARK("spdlog_info_format_small_string") {
+    std::string user = "benchmark_user";
     SPDLOG_INFO("User: {}", user);
-  }
-}
-BENCHMARK(spdlog_info_format_small_string);
+    return;
+  };
 
-void spdlog_info_format_small_string_view(benchmark::State& state) {
-  auto l = setup_logger();
-  std::string_view sv = "benchmark_view";
-  for (auto _ : state) {
+  BENCHMARK("spdlog_info_format_small_string_view") {
+    std::string_view sv = "benchmark_view";
     SPDLOG_INFO("View: {}", sv);
-  }
-}
-BENCHMARK(spdlog_info_format_small_string_view);
+    return;
+  };
 
-void spdlog_info_format_mixed(benchmark::State& state) {
-  auto l = setup_logger();
-  std::string user = "user42";
-  std::string_view op = "login";
-  bool success = true;
-  int64_t id = 9876543210;
-  for (auto _ : state) {
+  BENCHMARK("spdlog_info_format_mixed") {
+    std::string user = "user42";
+    std::string_view op = "login";
+    bool success = true;
+    int64_t id = 9876543210;
     SPDLOG_INFO("User: {}, Op: {}, Success: {}, ID: {}", user, op, success, id);
-  }
-}
-BENCHMARK(spdlog_info_format_mixed);
+    return;
+  };
 
-void spdlog_info_format_large_string(benchmark::State& state) {
-  auto l = setup_logger();
-  std::string payload(512, 'X');
-  for (auto _ : state) {
+  BENCHMARK("spdlog_info_format_large_string") {
+    std::string payload(512, 'X');
     SPDLOG_INFO("Payload: {}", payload);
-  }
+    return;
+  };
 }
-BENCHMARK(spdlog_info_format_large_string);
 
 }  // namespace
 

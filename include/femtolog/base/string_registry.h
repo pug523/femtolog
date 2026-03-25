@@ -2,8 +2,7 @@
 // This source code is licensed under the Apache License, Version 2.0
 // which can be found in the LICENSE file.
 
-#ifndef INCLUDE_FEMTOLOG_BASE_STRING_REGISTRY_H_
-#define INCLUDE_FEMTOLOG_BASE_STRING_REGISTRY_H_
+#pragma once
 
 #include <array>
 #include <limits>
@@ -11,11 +10,11 @@
 #include <string_view>
 #include <vector>
 
+#include "femtolog/base/check.h"
 #include "femtolog/base/format_util.h"
 #include "femtolog/build/build_flag.h"
-#include "femtolog/core/check.h"
 
-namespace femtolog {
+namespace femtolog::base {
 
 constexpr uint16_t kUint16Max = std::numeric_limits<uint16_t>::max();
 
@@ -113,6 +112,4 @@ class StringRegistry {
 #endif
 };
 
-}  // namespace femtolog
-
-#endif  // INCLUDE_FEMTOLOG_BASE_STRING_REGISTRY_H_
+}  // namespace femtolog::base

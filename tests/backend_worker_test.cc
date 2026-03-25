@@ -8,12 +8,12 @@
 #include <memory>
 #include <utility>
 
+#include "catch2/catch_test_macros.hpp"
 #include "femtolog/sinks/null_sink.h"
-#include "gtest/gtest.h"
 
 namespace femtolog::logging {
 
-TEST(BackendWorkerTest, RegisterAndClearSinks) {
+TEST_CASE("RegisterAndClearSinks", "[BackendWorkerTest]") {
   BackendWorker worker;
   auto sink = std::make_unique<NullSink>();
   FemtologOptions options;
@@ -24,7 +24,7 @@ TEST(BackendWorkerTest, RegisterAndClearSinks) {
   worker.clear_sinks();
 }
 
-TEST(BackendWorkerTest, CPUAffinityNoCrash) {
+TEST_CASE("CPUAffinityNoCrash", "[BackendWorkerTest]") {
   BackendWorker worker;
 
   auto sink = std::make_unique<NullSink>();

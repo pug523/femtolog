@@ -2,10 +2,10 @@
 // This source code is licensed under the Apache License, Version 2.0
 // which can be found in the LICENSE file.
 
-#ifndef INCLUDE_FEMTOLOG_OPTIONS_H_
-#define INCLUDE_FEMTOLOG_OPTIONS_H_
+#pragma once
 
 #include <cstddef>
+#include <cstdint>
 #include <limits>
 
 namespace femtolog {
@@ -59,8 +59,7 @@ struct FemtologOptions {
    * Default: std::numeric_limits<size_t>::max() (Disabled)
    * Note: CPU affinity is not currently supported on MacOS.
    */
-  size_t backend_worker_cpu_affinity =
-      std::numeric_limits<size_t>::max();
+  size_t backend_worker_cpu_affinity = std::numeric_limits<size_t>::max();
 
   /**
    * @brief When to enable ANSI color sequence.
@@ -80,7 +79,7 @@ struct FemtologOptions {
 };
 
 constexpr FemtologOptions kFastOptions{
-    1024 * 1024 * 4, 1024 * 64, 1024 * 64, 5, ColorMode::kAuto,
+    1024 * 1024 * 8, 1024 * 1024, 1024 * 1024, 5, ColorMode::kAuto,
 };
 
 constexpr FemtologOptions kMemorySavingOptions{
@@ -88,5 +87,3 @@ constexpr FemtologOptions kMemorySavingOptions{
 };
 
 }  // namespace femtolog
-
-#endif  // INCLUDE_FEMTOLOG_OPTIONS_H_

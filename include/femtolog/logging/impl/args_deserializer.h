@@ -2,8 +2,7 @@
 // This source code is licensed under the Apache License, Version 2.0
 // which can be found in the LICENSE file.
 
-#ifndef INCLUDE_FEMTOLOG_LOGGING_IMPL_ARGS_DESERIALIZER_H_
-#define INCLUDE_FEMTOLOG_LOGGING_IMPL_ARGS_DESERIALIZER_H_
+#pragma once
 
 #include <cstring>
 #include <string>
@@ -19,15 +18,14 @@ namespace femtolog::logging {
 template <bool ref_mode, typename... Args>
 class DeserializeDispatcher {
  public:
-  static constexpr DeserializeAndFormatFunction function() {
+  static constexpr base::DeserializeAndFormatFunction function() {
     return &deserialize_and_format;
   }
 
  private:
-  inline static size_t deserialize_and_format(
-      fmt::memory_buffer* format_buffer,
-      FormatFunction fmt_function,
-      const char* data) {
+  inline static size_t deserialize_and_format(fmt::memory_buffer* format_buffer,
+                                              base::FormatFunction fmt_function,
+                                              const char* data) {
     return deserialize_and_format_impl(format_buffer, fmt_function, data,
                                        std::index_sequence_for<Args...>{});
   }
@@ -35,7 +33,7 @@ class DeserializeDispatcher {
   template <size_t... I>
   inline static size_t deserialize_and_format_impl(
       fmt::memory_buffer* format_buffer,
-      FormatFunction fmt_function,
+      base::FormatFunction fmt_function,
       const char* data,
       std::index_sequence<I...>) {
     if constexpr (sizeof...(Args) == 1) {
@@ -43,7 +41,7 @@ class DeserializeDispatcher {
       using Decayed = std::decay_t<FirstArg>;
 
       if constexpr (std::is_trivially_copyable_v<Decayed> &&
-                    !is_string_like_v<Decayed>) {
+                    !base::is_string_like_v<Decayed>) {
         if constexpr (sizeof(Decayed) <= 8) {
           Decayed value;
           std::memcpy(&value, data, sizeof(value));
@@ -58,9 +56,9 @@ class DeserializeDispatcher {
 
   template <size_t... I>
   inline static size_t format_directly(fmt::memory_buffer* format_buffer,
-                                            FormatFunction fmt_function,
-                                            const char* data,
-                                            std::index_sequence<I...>) {
+                                       base::FormatFunction fmt_function,
+                                       const char* data,
+                                       std::index_sequence<I...>) {
     if constexpr (sizeof...(Args) == 1) {
       const auto [arg0, o0] =
           read_arg<std::tuple_element_t<0, std::tuple<Args...>>>(data, 0);
@@ -111,12 +109,12 @@ class DeserializeDispatcher {
   }
 
   template <typename T>
-  inline static std::pair<deserialized_arg_type_t<ref_mode, T>, size_t>
+  inline static std::pair<base::deserialized_arg_type_t<ref_mode, T>, size_t>
   read_arg(const char* base, size_t offset) {
     using Decayed = std::decay_t<T>;
     const char* ptr = base + offset;
 
-    if constexpr (is_string_like_v<Decayed>) {
+    if constexpr (base::is_string_like_v<Decayed>) {
       if constexpr (ref_mode) {
         uintptr_t raw_ptr;
         std::memcpy(&raw_ptr, ptr, sizeof(raw_ptr));
@@ -158,5 +156,3 @@ class DeserializeDispatcher {
 };
 
 }  // namespace femtolog::logging
-
-#endif  // INCLUDE_FEMTOLOG_LOGGING_IMPL_ARGS_DESERIALIZER_H_

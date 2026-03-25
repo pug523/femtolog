@@ -2,15 +2,15 @@
 // This source code is licensed under the Apache License, Version 2.0
 // which can be found in the LICENSE file.
 
-#ifndef INCLUDE_FEMTOLOG_BASE_LOG_LEVEL_H_
-#define INCLUDE_FEMTOLOG_BASE_LOG_LEVEL_H_
+#pragma once
 
 #include <cstdint>
 #include <string>
 
-#include "femtolog/core/base/string_util.h"
+#include "femtolog/base/string_util.h"
+#include "femtolog/base/style.h"
 
-namespace femtolog {
+namespace femtolog::base {
 
 enum class LogLevel : uint8_t {
   kRaw = 0,
@@ -52,15 +52,15 @@ inline constexpr const char* log_level_to_upper_str(LogLevel level) {
   }
 }
 
-inline constexpr const char* log_level_to_ansi_color(LogLevel level) {
+inline constexpr const char* log_level_to_ansi_style(LogLevel level) {
   switch (level) {
-    case LogLevel::kRaw: return core::kReset;
-    case LogLevel::kFatal: return core::kMagenta;
-    case LogLevel::kError: return core::kRed;
-    case LogLevel::kWarn: return core::kYellow;
-    case LogLevel::kInfo: return core::kGreen;
-    case LogLevel::kDebug: return core::kCyan;
-    case LogLevel::kTrace: return core::kGray;
+    case LogLevel::kRaw: return kReset;
+    case LogLevel::kFatal: return kFatalStyle;
+    case LogLevel::kError: return kErrorStyle;
+    case LogLevel::kWarn: return kWarnStyle;
+    case LogLevel::kInfo: return kInfoStyle;
+    case LogLevel::kDebug: return kDebugStyle;
+    case LogLevel::kTrace: return kTraceStyle;
     default: return "";
   }
 }
@@ -102,13 +102,16 @@ inline constexpr LogLevel log_level_from_string(const char* str) {
 }
 
 inline constexpr size_t level_len(LogLevel lvl) {
-  return std::char_traits<char>::length(log_level_to_lower_str(lvl));
+  switch (lvl) {
+    case LogLevel::kRaw: return 3;
+    case LogLevel::kFatal: return 5;
+    case LogLevel::kError: return 5;
+    case LogLevel::kWarn: return 4;
+    case LogLevel::kInfo: return 4;
+    case LogLevel::kDebug: return 5;
+    case LogLevel::kTrace: return 5;
+    default: return 0;
+  }
 }
 
-inline constexpr size_t level_ansi_len(LogLevel lvl) {
-  return std::char_traits<char>::length(log_level_to_ansi_color(lvl));
-}
-
-}  // namespace femtolog
-
-#endif  // INCLUDE_FEMTOLOG_BASE_LOG_LEVEL_H_
+}  // namespace femtolog::base

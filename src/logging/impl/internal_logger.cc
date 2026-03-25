@@ -65,19 +65,19 @@ bool InternalLogger::is_ansi_sequence_available() {
   static const bool result = [] {
 #if FEMTOLOG_IS_WINDOWS
     // check if GetStdHandle() returns terminal handle
-    HANDLE hOut = GetStdHandle(STD_OUTPUT_HANDLE);
-    if (hOut == INVALID_HANDLE_VALUE) {
+    HANDLE h_out = GetStdHandle(STD_OUTPUT_HANDLE);
+    if (h_out == INVALID_HANDLE_VALUE) {
       return false;
     }
 
-    DWORD dwMode = 0;
-    if (!GetConsoleMode(hOut, &dwMode)) {
+    DWORD dw_mode = 0;
+    if (!GetConsoleMode(h_out, &dw_mode)) {
       return false;
     }
 
     // enable virtual terminal processing
-    dwMode |= ENABLE_VIRTUAL_TERMINAL_PROCESSING;
-    if (!SetConsoleMode(hOut, dwMode)) {
+    dw_mode |= ENABLE_VIRTUAL_TERMINAL_PROCESSING;
+    if (!SetConsoleMode(h_out, dw_mode)) {
       // cannot use ansi sequence if fail to enable virtual terminal
       return false;
     }

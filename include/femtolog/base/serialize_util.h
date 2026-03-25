@@ -2,8 +2,7 @@
 // This source code is licensed under the Apache License, Version 2.0
 // which can be found in the LICENSE file.
 
-#ifndef INCLUDE_FEMTOLOG_BASE_SERIALIZE_UTIL_H_
-#define INCLUDE_FEMTOLOG_BASE_SERIALIZE_UTIL_H_
+#pragma once
 
 #include <algorithm>
 #include <cstddef>
@@ -11,16 +10,16 @@
 #include <new>
 #include <string>
 
+#include "femtolog/base/check.h"
 #include "femtolog/base/format_util.h"
+#include "femtolog/base/memory_util.h"
 #include "femtolog/base/string_registry.h"
-#include "femtolog/core/base/memory_util.h"
-#include "femtolog/core/check.h"
 
-namespace femtolog {
+namespace femtolog::base {
 
 using DeserializeAndFormatFunction = size_t (*)(fmt::memory_buffer*,
-                                                     FormatFunction,
-                                                     const char*);
+                                                FormatFunction,
+                                                const char*);
 
 struct SerializedArgsHeader {
   FormatFunction format_func;
@@ -50,7 +49,7 @@ class SerializedArgs {
   inline consteval size_t capacity() const noexcept { return kCapacity; }
 
  private:
-  alignas(core::kCacheSize) char buffer_[kCapacity];
+  alignas(kCacheSize) char buffer_[kCapacity];
   size_t size_ = 0;
 };
 
@@ -105,6 +104,4 @@ struct DeserializedArgType {
 template <bool ref_mode, typename T>
 using deserialized_arg_type_t = typename DeserializedArgType<ref_mode, T>::type;
 
-}  // namespace femtolog
-
-#endif  // INCLUDE_FEMTOLOG_BASE_SERIALIZE_UTIL_H_
+}  // namespace femtolog::base

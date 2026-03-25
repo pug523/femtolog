@@ -2,8 +2,7 @@
 // This source code is licensed under the Apache License, Version 2.0
 // which can be found in the LICENSE file.
 
-#ifndef INCLUDE_FEMTOLOG_LOGGING_IMPL_INTERNAL_LOGGER_H_
-#define INCLUDE_FEMTOLOG_LOGGING_IMPL_INTERNAL_LOGGER_H_
+#pragma once
 
 #include <memory>
 #include <new>
@@ -12,7 +11,6 @@
 #include "femtolog/base/log_entry.h"
 #include "femtolog/base/log_level.h"
 #include "femtolog/base/string_registry.h"
-#include "femtolog/logging/base/logging_export.h"
 #include "femtolog/logging/impl/args_serializer.h"
 #include "femtolog/logging/impl/backend_worker.h"
 #include "femtolog/logging/impl/spsc_queue.h"
@@ -23,9 +21,9 @@ namespace femtolog::logging {
 
 // 1KiB max per entry. (consider sizeof LogEntry)
 // Use reference mode if you need to output strings longer than this limit
-static constexpr const size_t kMaxPayloadSize = 1024 - sizeof(LogEntry);
+static constexpr const size_t kMaxPayloadSize = 1024 - sizeof(base::LogEntry);
 
-class FEMTOLOG_LOGGING_EXPORT InternalLogger {
+class InternalLogger {
  public:
   InternalLogger();
 
@@ -67,11 +65,14 @@ class FEMTOLOG_LOGGING_EXPORT InternalLogger {
     dropped_count_ = 0;
   }
 
-  template <LogLevel level, FixedString fmt, bool ref_mode, typename... Args>
+  template <base::LogLevel level,
+            base::FixedString fmt,
+            bool ref_mode,
+            typename... Args>
   inline void log(Args&&... args) noexcept {
     // Compile-time level check
     // Assuming `debug` is common threshold
-    if constexpr (level > LogLevel::kDebug) {
+    if constexpr (level > base::LogLevel::kDebug) {
       if (level > level_) [[unlikely]] {
         return;
       }
@@ -90,7 +91,7 @@ class FEMTOLOG_LOGGING_EXPORT InternalLogger {
       constexpr std::string_view view(fmt.data, fmt.size);
       log_literal<level>(view);
     } else {
-      constexpr uint16_t format_id = StringRegistry::get_string_id<fmt>();
+      constexpr uint16_t format_id = base::StringRegistry::get_string_id<fmt>();
       string_registry_.register_string<fmt>();
 
       const auto& serialized_args =
@@ -101,14 +102,14 @@ class FEMTOLOG_LOGGING_EXPORT InternalLogger {
 
   inline void flush() noexcept { backend_worker_.flush(); }
 
-  inline void level(LogLevel level) noexcept { level_ = level; }
+  inline void level(base::LogLevel level) noexcept { level_ = level; }
 
-  [[nodiscard]] inline LogLevel level() const noexcept { return level_; }
+  [[nodiscard]] inline base::LogLevel level() const noexcept { return level_; }
 
   [[nodiscard]] static bool is_ansi_sequence_available();
 
  private:
-  template <LogLevel level>
+  template <base::LogLevel level>
   inline constexpr void log_literal(const std::string_view& message) {
     const size_t payload_len = message.size();
     if (payload_len >= kMaxPayloadSize) [[unlikely]] {
@@ -116,17 +117,17 @@ class FEMTOLOG_LOGGING_EXPORT InternalLogger {
       return;
     }
 
-    const LogEntry* entry =
-        LogEntry::create(entry_buffer_, thread_id_, kLiteralLogStringId, level,
-                         0, message.data(), message.length());
+    const base::LogEntry* entry = base::LogEntry::create(
+        entry_buffer_, thread_id_, base::kLiteralLogStringId, level, 0,
+        message.data(), message.length());
 
     enqueue_log_entry(entry);
   }
 
-  template <LogLevel level, size_t Capacity>
+  template <base::LogLevel level, size_t Capacity>
   inline constexpr void log_serialized(
       uint16_t format_id,
-      const SerializedArgs<Capacity>& serialized) {
+      const base::SerializedArgs<Capacity>& serialized) {
     // NOLINTNEXTLINE
     if (serialized.size() >= kMaxPayloadSize || serialized.size() == 0)
         [[unlikely]] {
@@ -134,39 +135,40 @@ class FEMTOLOG_LOGGING_EXPORT InternalLogger {
       return;
     }
 
-    const LogEntry* entry =
-        LogEntry::create(entry_buffer_, thread_id_, format_id, level, 0,
-                         serialized.data(), serialized.size());
+    const base::LogEntry* entry =
+        base::LogEntry::create(entry_buffer_, thread_id_, format_id, level, 0,
+                               serialized.data(), serialized.size());
 
     enqueue_log_entry(entry);
   }
 
-  inline void enqueue_log_entry(const LogEntry* entry) noexcept;
+  inline void enqueue_log_entry(const base::LogEntry* entry) noexcept;
 
   [[nodiscard]] static uint32_t current_thread_id() noexcept;
 
   friend void internal_logger_enqueue_log_entry_bench(InternalLogger* logger);
 
   // Hot data - frequently accessed (first cache line)
-  alignas(core::kCacheSize) LogLevel level_ = LogLevel::kInfo;
+  alignas(base::kCacheSize) base::LogLevel level_ = base::LogLevel::kInfo;
   const uint32_t thread_id_;
   size_t enqueued_count_ = 0;
   size_t dropped_count_ = 0;
-  StringRegistry string_registry_;
+  base::StringRegistry string_registry_;
   ArgsSerializer<> serializer_;
 
   // Cold data - less frequently accessed (separate cache line)
-  alignas(core::kCacheSize) SpscQueue queue_;
+  alignas(base::kCacheSize) SpscQueue queue_;
 
   // Buffer management (separate cache line)
-  alignas(LogEntry) alignas(core::kCacheSize) uint8_t
-      entry_buffer_[sizeof(LogEntry) + kMaxPayloadSize];
+  alignas(base::LogEntry) alignas(base::kCacheSize) uint8_t
+      entry_buffer_[sizeof(base::LogEntry) + kMaxPayloadSize];
 
   BackendWorker backend_worker_;
   bool terminate_on_fatal_ : 1 = true;
 };
 
-inline void InternalLogger::enqueue_log_entry(const LogEntry* entry) noexcept {
+inline void InternalLogger::enqueue_log_entry(
+    const base::LogEntry* entry) noexcept {
   const size_t entry_size = entry->total_size();
 
   // Direct enqueue with minimal overhead
@@ -177,12 +179,10 @@ inline void InternalLogger::enqueue_log_entry(const LogEntry* entry) noexcept {
     dropped_count_++;
   }
 
-  if (entry->level == LogLevel::kFatal && terminate_on_fatal_) {
+  if (entry->level == base::LogLevel::kFatal && terminate_on_fatal_) {
     backend_worker_.stop();
     std::terminate();
   }
 }
 
 }  // namespace femtolog::logging
-
-#endif  // INCLUDE_FEMTOLOG_LOGGING_IMPL_INTERNAL_LOGGER_H_

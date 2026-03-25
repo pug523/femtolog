@@ -62,6 +62,7 @@ Designed for modern C++ projects where every nanosecond counts.
 #include "femtolog/femtolog.h"
 
 using namespace femtolog;
+
 int main() {
   // Initialize the logger
   Logger& logger = Logger::logger();
@@ -69,7 +70,8 @@ int main() {
   logger.register_sink<femtolog::StdoutSink<>>();
   logger.start_worker();
 
-  logger.info<"Hello World">();
+  // Output "Hello World" to console
+  logger.info<"Hello World\n">();
 
   logger.stop_worker();
   logger.clear_sinks();
@@ -105,7 +107,7 @@ int main() {
   logger.start_worker();
 
   std::string username = "pugur";
-  float cpu_usage = 42.57;
+  float cpu_usage = 42.57f;
   bool result = true;
   int error_code = -1;
 

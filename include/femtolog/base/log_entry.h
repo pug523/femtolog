@@ -2,15 +2,14 @@
 // This source code is licensed under the Apache License, Version 2.0
 // which can be found in the LICENSE file.
 
-#ifndef INCLUDE_FEMTOLOG_BASE_LOG_ENTRY_H_
-#define INCLUDE_FEMTOLOG_BASE_LOG_ENTRY_H_
+#pragma once
 
 #include <algorithm>
 #include <string_view>
 
 #include "femtolog/base/log_level.h"
 
-namespace femtolog {
+namespace femtolog::base {
 
 struct LogEntry {
   LogEntry() = default;
@@ -32,9 +31,8 @@ struct LogEntry {
     return sizeof(LogEntry) + payload_len;
   }
 
-  [[nodiscard]] inline size_t copy_raw_payload(
-      char* dst_buf,
-      size_t dst_size) const noexcept {
+  [[nodiscard]] inline size_t copy_raw_payload(char* dst_buf,
+                                               size_t dst_size) const noexcept {
     size_t to_copy = std::min<size_t>(dst_size, payload_len);
     std::memcpy(dst_buf, payload(), to_copy);
     return to_copy;
@@ -65,6 +63,4 @@ struct LogEntry {
   LogLevel level = LogLevel::kInfo;
 };
 
-}  // namespace femtolog
-
-#endif  // INCLUDE_FEMTOLOG_BASE_LOG_ENTRY_H_
+}  // namespace femtolog::base

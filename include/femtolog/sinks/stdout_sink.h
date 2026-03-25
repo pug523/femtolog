@@ -2,8 +2,7 @@
 // This source code is licensed under the Apache License, Version 2.0
 // which can be found in the LICENSE file.
 
-#ifndef INCLUDE_FEMTOLOG_SINKS_STDOUT_SINK_H_
-#define INCLUDE_FEMTOLOG_SINKS_STDOUT_SINK_H_
+#pragma once
 
 #include <cstring>
 #include <memory>
@@ -11,6 +10,7 @@
 
 #include "femtolog/base/log_entry.h"
 #include "femtolog/base/log_level.h"
+#include "femtolog/base/style.h"
 #include "femtolog/build/build_flag.h"
 #include "femtolog/logging/impl/internal_logger.h"
 #include "femtolog/options.h"
@@ -40,7 +40,7 @@ class StdoutSink final : public SinkBase {
     }
   }
 
-  inline void on_log(const LogEntry& entry,
+  inline void on_log(const base::LogEntry& entry,
                      const char* content,
                      size_t len) override {
     if constexpr (!enable_buffering) {
@@ -60,44 +60,44 @@ class StdoutSink final : public SinkBase {
   }
 
  private:
-  inline size_t estimate_length(LogLevel level,
-                                     size_t content_len) const {
+  inline size_t estimate_length(base::LogLevel level,
+                                size_t content_len) const {
     size_t len = content_len + kSepLen;
     if (is_color_enabled()) {
-      len += kAnsiStyleLen + kResetLen + kAnsiStyleLen;
+      len += base::kAnsiStyleLen + kResetLen;
     }
-    len += level_len(level);
+    if (level != base::LogLevel::kRaw) {
+      len += kLogLevelPrefixLen;
+    }
     return len;
   }
 
   inline size_t build_message(char* out,
-                                   LogLevel level,
-                                   const char* content,
-                                   size_t content_len) const {
+                              base::LogLevel level,
+                              const char* content,
+                              size_t content_len) const {
     char* p = out;
-    if (level != LogLevel::kRaw) {
+    if (level != base::LogLevel::kRaw) {
       if (is_color_enabled()) {
-        std::memcpy(p, kBold, kAnsiStyleLen);
-        p += kAnsiStyleLen;
-        const char* col = log_level_to_ansi_color(level);
-        const size_t ansi_len = level_ansi_len(level);
-        std::memcpy(p, col, ansi_len);
-        p += ansi_len;
-      }
-      const char* lvl = log_level_to_lower_str(level);
-      size_t lvl_len = level_len(level);
-      std::memcpy(p, lvl, lvl_len);
-      p += lvl_len;
-      if (is_color_enabled()) {
-        std::memcpy(p, kReset, kResetLen);
+        const char* col = log_level_to_ansi_style(level);
+        std::memcpy(p, col, base::kAnsiStyleLen);
+        p += base::kAnsiStyleLen;
+        const char* prefix = log_level_to_prefix(level);
+        std::memcpy(p, prefix, kLogLevelPrefixLen);
+        p += kLogLevelPrefixLen;
+        std::memcpy(p, base::kReset, kResetLen);
         p += kResetLen;
+      } else {
+        const char* prefix = log_level_to_prefix(level);
+        std::memcpy(p, prefix, kLogLevelPrefixLen);
+        p += kLogLevelPrefixLen;
       }
       std::memcpy(p, kSep, kSepLen);
       p += kSepLen;
     }
     std::memcpy(p, content, content_len);
     p += content_len;
-    return p - out;
+    return static_cast<size_t>(p - out);
   }
 
   inline void flush() {
@@ -116,7 +116,7 @@ class StdoutSink final : public SinkBase {
     }
   }
 
-  inline void write_direct(LogLevel level,
+  inline void write_direct(base::LogLevel level,
                            const char* content,
                            size_t len) {
     char tmp[kBufferCapacity];
@@ -152,6 +152,21 @@ class StdoutSink final : public SinkBase {
     return m;
   }
 
+  inline static constexpr const char* log_level_to_prefix(
+      base::LogLevel level) {
+    switch (level) {
+      case base::LogLevel::kFatal: return "fatal";
+      case base::LogLevel::kError: return "error";
+      case base::LogLevel::kWarn: return " warn";
+      case base::LogLevel::kInfo: return " info";
+      case base::LogLevel::kDebug: return "debug";
+      case base::LogLevel::kTrace: return "trace";
+      default: FEMTOLOG_DCHECK(false); return "";
+    }
+  }
+
+  static constexpr size_t kLogLevelPrefixLen = 5;
+
   std::unique_ptr<char[]> buffer_;
   size_t cursor_ = 0;
   ColorMode mode_;
@@ -160,12 +175,7 @@ class StdoutSink final : public SinkBase {
   static constexpr size_t kBufferCapacity = 4096;
   static constexpr const char* kSep = ": ";
   static constexpr size_t kSepLen = 2;
-  static constexpr const char* kBold = core::kBold;
-  static constexpr size_t kAnsiStyleLen = 4;
-  static constexpr const char* kReset = core::kReset;
   static constexpr size_t kResetLen = 4;
 };
 
 }  // namespace femtolog
-
-#endif  // INCLUDE_FEMTOLOG_SINKS_STDOUT_SINK_H_

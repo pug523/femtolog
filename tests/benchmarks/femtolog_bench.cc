@@ -2,10 +2,13 @@
 // This source code is licensed under the Apache License, Version 2.0
 // which can be found in the LICENSE file.
 
+#include <chrono>
 #include <string>
+#include <thread>
 
-#include "bench/benchmark_util.h"
-#include "benchmark/benchmark.h"
+#include "benchmarks/benchmark_util.h"
+#include "catch2/benchmark/catch_benchmark.hpp"
+#include "catch2/catch_test_macros.hpp"
 #include "femtolog/logger.h"
 #include "femtolog/options.h"
 #include "femtolog/sinks/file_sink.h"
@@ -34,181 +37,107 @@ Logger& setup_logger() {
   return logger;
 }
 
-inline void summarize_result(const Logger& logger, benchmark::State& state) {
-  state.counters["enqueued count"] = logger.enqueued_count();
-  state.counters["dropped count"] = logger.dropped_count();
-}
-
-inline void teardown_logger(Logger* logger) {
+inline void cleanup_logger(Logger* logger) {
+  logger->stop_worker();
+  logger->register_sink<StdoutSink<>>();
+  logger->start_worker();
+  logger->info<"Dropped count: {}\n">(logger->dropped_count());
+  logger->flush();
   logger->stop_worker();
   logger->reset_count();
 }
 
-void femtolog_info_literal(benchmark::State& state) {
+TEST_CASE("femtolog logging benchmarks", "[benchmark][logger][femtolog][.]") {
   Logger& logger = setup_logger();
-  for (auto _ : state) {
+
+  BENCHMARK("femtolog_info_literal") {
     logger.info<"Benchmark test message\n">();
-  }
-  summarize_result(logger, state);
-  teardown_logger(&logger);
-}
-BENCHMARK(femtolog_info_literal);
+    return 0;
+  };
 
-void femtolog_info_format_int(benchmark::State& state) {
-  Logger& logger = setup_logger();
-  for (auto _ : state) {
+  BENCHMARK("femtolog_info_format_int") {
     logger.info<"Value: {}\n">(123);
-  }
-  summarize_result(logger, state);
-  teardown_logger(&logger);
-}
-BENCHMARK(femtolog_info_format_int);
+    return 0;
+  };
 
-void femtolog_info_format_multi_int(benchmark::State& state) {
-  Logger& logger = setup_logger();
-  for (auto _ : state) {
+  BENCHMARK("femtolog_info_format_multi_int") {
     logger.info<"A: {}, B: {}, C: {}\n">(1, 2, 3);
-  }
-  summarize_result(logger, state);
-  teardown_logger(&logger);
-}
-BENCHMARK(femtolog_info_format_multi_int);
+    return 0;
+  };
 
-void femtolog_info_format_small_string(benchmark::State& state) {
-  Logger& logger = setup_logger();
-  std::string name = "benchmark_user";
-  for (auto _ : state) {
+  BENCHMARK("femtolog_info_format_small_string") {
+    std::string name = "benchmark_user";
     logger.info<"User: {}\n">(name);
-  }
-  summarize_result(logger, state);
-  teardown_logger(&logger);
-}
-BENCHMARK(femtolog_info_format_small_string);
+    return 0;
+  };
 
-// std::string_view argument
-void femtolog_info_format_small_string_view(benchmark::State& state) {
-  Logger& logger = setup_logger();
-  std::string_view sv = "benchmark_view";
-  for (auto _ : state) {
+  BENCHMARK("femtolog_info_format_small_string_view") {
+    std::string_view sv = "benchmark_view";
     logger.info<"View: {}\n">(sv);
-  }
-  summarize_result(logger, state);
-  teardown_logger(&logger);
-}
-BENCHMARK(femtolog_info_format_small_string_view);
+    return 0;
+  };
 
-// Mixed types
-void femtolog_info_format_mixed(benchmark::State& state) {
-  Logger& logger = setup_logger();
-  std::string user = "user42";
-  std::string_view op = "login";
-  bool success = true;
-  int64_t id = 9876543210;
-  for (auto _ : state) {
+  BENCHMARK("femtolog_info_format_mixed") {
+    std::string user = "user42";
+    std::string_view op = "login";
+    bool success = true;
+    int64_t id = 9876543210;
     logger.info<"User: {}, Op: {}, Success: {}, ID: {}\n">(user, op, success,
                                                            id);
-  }
-  summarize_result(logger, state);
-  teardown_logger(&logger);
-}
-BENCHMARK(femtolog_info_format_mixed);
+    return 0;
+  };
 
-// Long string argument
-void femtolog_info_format_large_string(benchmark::State& state) {
-  Logger& logger = setup_logger();
-  std::string long_str = std::string(512, 'X');  // 64-byte string
-  for (auto _ : state) {
+  BENCHMARK("femtolog_info_format_large_string") {
+    std::string long_str = std::string(512, 'X');
     logger.info<"Payload: {}\n">(long_str);
-  }
-  summarize_result(logger, state);
-  teardown_logger(&logger);
-}
-BENCHMARK(femtolog_info_format_large_string);
+    return 0;
+  };
 
-// ==============================
-// reference base logging benches
-// ==============================
-
-void femtolog_info_ref_literal(benchmark::State& state) {
-  Logger& logger = setup_logger();
-  for (auto _ : state) {
+  BENCHMARK("femtolog_info_ref_literal") {
     logger.info_ref<"Benchmark test message\n">();
-  }
-  summarize_result(logger, state);
-  teardown_logger(&logger);
-}
-BENCHMARK(femtolog_info_ref_literal);
+    return 0;
+  };
 
-void femtolog_info_ref_format_int(benchmark::State& state) {
-  Logger& logger = setup_logger();
-  for (auto _ : state) {
+  BENCHMARK("femtolog_info_ref_format_int") {
     logger.info_ref<"Value: {}\n">(123);
-  }
-  summarize_result(logger, state);
-  teardown_logger(&logger);
-}
-BENCHMARK(femtolog_info_ref_format_int);
+    return 0;
+  };
 
-void femtolog_info_ref_format_multi_int(benchmark::State& state) {
-  Logger& logger = setup_logger();
-  for (auto _ : state) {
+  BENCHMARK("femtolog_info_ref_format_multi_int") {
     logger.info_ref<"A: {}, B: {}, C: {}\n">(1, 2, 3);
-  }
-  summarize_result(logger, state);
-  teardown_logger(&logger);
-}
-BENCHMARK(femtolog_info_ref_format_multi_int);
+    return 0;
+  };
 
-void femtolog_info_ref_format_small_string(benchmark::State& state) {
-  Logger& logger = setup_logger();
-  std::string name = "benchmark_user";
-  for (auto _ : state) {
+  BENCHMARK("femtolog_info_ref_format_small_string") {
+    std::string name = "benchmark_user";
     logger.info_ref<"User: {}\n">(name);
-  }
-  summarize_result(logger, state);
-  teardown_logger(&logger);
-}
-BENCHMARK(femtolog_info_ref_format_small_string);
+    return 0;
+  };
 
-// std::string_view argument
-void femtolog_info_ref_format_small_string_view(benchmark::State& state) {
-  Logger& logger = setup_logger();
-  std::string_view sv = "benchmark_view";
-  for (auto _ : state) {
+  BENCHMARK("femtolog_info_ref_format_small_string_view") {
+    std::string_view sv = "benchmark_view";
     logger.info_ref<"View: {}\n">(sv);
-  }
-  summarize_result(logger, state);
-  teardown_logger(&logger);
-}
-BENCHMARK(femtolog_info_ref_format_small_string_view);
+    return 0;
+  };
 
-// Mixed types
-void femtolog_info_ref_format_mixed(benchmark::State& state) {
-  Logger& logger = setup_logger();
-  std::string user = "user42";
-  std::string_view op = "login";
-  bool success = true;
-  int64_t id = 9876543210;
-  for (auto _ : state) {
+  BENCHMARK("femtolog_info_ref_format_mixed") {
+    std::string user = "user42";
+    std::string_view op = "login";
+    bool success = true;
+    int64_t id = 9876543210;
     logger.info_ref<"User: {}, Op: {}, Success: {}, ID: {}\n">(user, op,
                                                                success, id);
-  }
-  summarize_result(logger, state);
-  teardown_logger(&logger);
-}
-BENCHMARK(femtolog_info_ref_format_mixed);
+    return 0;
+  };
 
-// Long string argument
-void femtolog_info_ref_format_large_string(benchmark::State& state) {
-  Logger& logger = setup_logger();
-  std::string long_str = std::string(512, 'X');  // 64-byte string
-  for (auto _ : state) {
+  BENCHMARK("femtolog_info_ref_format_large_string") {
+    std::string long_str = std::string(512, 'X');
     logger.info_ref<"Payload: {}\n">(long_str);
-  }
-  summarize_result(logger, state);
-  teardown_logger(&logger);
+    return 0;
+  };
+
+  cleanup_logger(&logger);
 }
-BENCHMARK(femtolog_info_ref_format_large_string);
 
 }  // namespace
 

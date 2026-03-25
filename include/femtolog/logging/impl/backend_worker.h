@@ -2,8 +2,7 @@
 // This source code is licensed under the Apache License, Version 2.0
 // which can be found in the LICENSE file.
 
-#ifndef INCLUDE_FEMTOLOG_LOGGING_IMPL_BACKEND_WORKER_H_
-#define INCLUDE_FEMTOLOG_LOGGING_IMPL_BACKEND_WORKER_H_
+#pragma once
 
 #include <atomic>
 #include <thread>
@@ -58,7 +57,7 @@ class BackendWorker {
   void run_loop();
 
   void flush_impl();
-  void process_log_entry(LogEntry* entry);
+  void process_log_entry(base::LogEntry* entry);
 
   alignas(64) std::vector<uint8_t> dequeue_buffer_;
   uint8_t* dequeue_buffer_ptr_ = nullptr;
@@ -78,5 +77,3 @@ class BackendWorker {
 };
 
 }  // namespace femtolog::logging
-
-#endif  // INCLUDE_FEMTOLOG_LOGGING_IMPL_BACKEND_WORKER_H_

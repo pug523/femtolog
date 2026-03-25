@@ -4,24 +4,40 @@
 
 #include <string>
 
+#include "catch2/catch_test_macros.hpp"
 #include "femtolog/logger.h"
 #include "femtolog/sinks/file_sink.h"
 #include "femtolog/sinks/json_lines_sink.h"
 #include "femtolog/sinks/stdout_sink.h"
-#include "gtest/gtest.h"
 
-TEST(FemtoLogTest, README_example) {
-  // get thread local logger instance
+TEST_CASE("README Basic Example", "[FemtoLogTest]") {
+  // NOLINTNEXTLINE(build/namespaces)
+  using namespace femtolog;
+
+  // Initialize the logger
+  Logger& logger = Logger::logger();
+  logger.init();
+  logger.register_sink<femtolog::StdoutSink<>>();
+  logger.start_worker();
+
+  // Output "Hello World" to console
+  logger.info<"Hello World\n">();
+
+  logger.stop_worker();
+  logger.clear_sinks();
+}
+
+TEST_CASE("README Advanced Example", "[FemtoLogTest]") {
+  // Get thread local logger instance.
   femtolog::Logger& logger = femtolog::Logger::logger();
 
-  // initialize logger and register log sink
+  // Initialize logger and register log sink.
   femtolog::FemtologOptions options = {
       .spsc_queue_size = 1024 * 1024 * 4,
       .backend_format_buffer_size = 1024 * 64,
       .backend_dequeue_buffer_size = 1024 * 64,
       .backend_worker_cpu_affinity = 5,
       .color_mode = femtolog::ColorMode::kAuto,
-      .terminate_on_fatal = false,
   };
   logger.init(options);
   logger.register_sink<femtolog::StdoutSink<>>();
@@ -29,15 +45,15 @@ TEST(FemtoLogTest, README_example) {
   logger.register_sink<femtolog::JsonLinesSink<>>();
   logger.level("trace");
 
-  // start the backend worker that dequeues logged entries
+  // Start the backend worker that dequeues logged entries.
   logger.start_worker();
 
   std::string username = "pugur";
-  float cpu_usage = 42.57;
+  float cpu_usage = 42.57f;
   bool result = true;
   int error_code = -1;
 
-  // log messages with compile-time interpreted format strings:
+  // Log messages with compile-time interpreted format strings.
   logger.trace<"Hello {}\n">("World");
   logger.debug<"Hello World wo formatting\n">();
   logger.info<"User \"{}\" logged in.\n">(username);
@@ -52,7 +68,7 @@ TEST(FemtoLogTest, README_example) {
 
 namespace femtolog {
 
-TEST(FemtoLogTest, BasicLogging) {
+TEST_CASE("Basic logging", "[FemtoLogTest]") {
   Logger& logger = Logger::global_logger();
 
   femtolog::FemtologOptions options{
@@ -66,7 +82,7 @@ TEST(FemtoLogTest, BasicLogging) {
 
   logger.start_worker();
 
-  logger.level(LogLevel::kTrace);
+  logger.level(base::LogLevel::kTrace);
 
   logger.info<"basic logging\n">();
 
@@ -78,11 +94,11 @@ TEST(FemtoLogTest, BasicLogging) {
   std::string msg = "message";
   logger.fatal<"this is a sample fatal {}\n">(msg);
 
-  logger.level(LogLevel::kWarn);
+  logger.level(base::LogLevel::kWarn);
   logger.trace<"this line should be invisible1\n">();
   logger.debug<"this line should be invisible2\n">();
   logger.info<"this line should be invisible3\n">();
-  logger.level(LogLevel::kInfo);
+  logger.level(base::LogLevel::kInfo);
 
   {
     std::string referenced1 = "test 1";

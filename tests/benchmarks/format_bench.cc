@@ -7,7 +7,8 @@
 #include <string>
 #include <string_view>
 
-#include "benchmark/benchmark.h"
+#include "catch2/benchmark/catch_benchmark.hpp"
+#include "catch2/catch_test_macros.hpp"
 #include "fmt/core.h"
 #include "fmt/format.h"
 
@@ -17,108 +18,57 @@ constexpr const int value = 42;
 constexpr const std::string_view name = "Foo";
 constexpr const double pi = 3.14159;
 
-void format_std_format_simple(benchmark::State& state) {
-  for (auto _ : state) {
-    std::string s = std::format("value = {}", value);
-    benchmark::DoNotOptimize(s);
-  }
-}
-BENCHMARK(format_std_format_simple);
+TEST_CASE("format benchmarks", "[benchmark][fmt][.]") {
+  BENCHMARK("format_std_format_simple") {
+    return std::format("value = {}", value);
+  };
 
-void format_fmt_format_simple(benchmark::State& state) {
-  for (auto _ : state) {
-    std::string s = fmt::format("value = {}", value);
-    benchmark::DoNotOptimize(s);
-  }
-}
-BENCHMARK(format_fmt_format_simple);
+  BENCHMARK("format_fmt_format_simple") {
+    return fmt::format("value = {}", value);
+  };
 
-void format_std_format(benchmark::State& state) {
-  for (auto _ : state) {
-    std::string s =
-        std::format("value = {}, name = {}, pi = {:.2f}", value, name, pi);
-    benchmark::DoNotOptimize(s);
-  }
-}
-BENCHMARK(format_std_format);
+  BENCHMARK("format_std_format") {
+    return std::format("value = {}, name = {}, pi = {:.2f}", value, name, pi);
+  };
 
-void format_fmt_format(benchmark::State& state) {
-  for (auto _ : state) {
-    std::string s =
-        fmt::format("value = {}, name = {}, pi = {:.2f}", value, name, pi);
-    benchmark::DoNotOptimize(s);
-  }
-}
-BENCHMARK(format_fmt_format);
+  BENCHMARK("format_fmt_format") {
+    return fmt::format("value = {}, name = {}, pi = {:.2f}", value, name, pi);
+  };
 
-void format_std_format_to_n_simple(benchmark::State& state) {
-  for (auto _ : state) {
+  BENCHMARK("format_std_format_to_n_simple") {
     std::array<char, 128> buffer;
-    auto result =
-        std::format_to_n(buffer.data(), buffer.size(), "value = {}", value);
-    benchmark::DoNotOptimize(result);
-  }
-}
-BENCHMARK(format_std_format_to_n_simple);
+    return std::format_to_n(buffer.data(), buffer.size(), "value = {}", value);
+  };
 
-void format_fmt_format_to_n_simple(benchmark::State& state) {
-  for (auto _ : state) {
+  BENCHMARK("format_fmt_format_to_n_simple") {
     std::array<char, 128> buffer;
-    auto result = fmt::format_to_n(buffer.data(), buffer.size(),
-                                   FMT_STRING("value = {}"), value);
-    benchmark::DoNotOptimize(result);
-  }
-}
-BENCHMARK(format_fmt_format_to_n_simple);
+    return fmt::format_to_n(buffer.data(), buffer.size(), "value = {}", value);
+  };
 
-void format_fmt_format_to_n_simple_wo_fmt_string(benchmark::State& state) {
-  for (auto _ : state) {
+  BENCHMARK("format_fmt_format_to_n_simple_wo_fmt_string") {
     std::array<char, 128> buffer;
-    auto result =
-        fmt::format_to_n(buffer.data(), buffer.size(), "value = {}", value);
-    benchmark::DoNotOptimize(result);
-  }
-}
-BENCHMARK(format_fmt_format_to_n_simple_wo_fmt_string);
+    return fmt::format_to_n(buffer.data(), buffer.size(), "value = {}", value);
+  };
 
-void format_std_format_to_n(benchmark::State& state) {
-  for (auto _ : state) {
+  BENCHMARK("format_std_format_to_n") {
     std::array<char, 128> buffer;
-    auto result =
-        std::format_to_n(buffer.data(), buffer.size(),
-                         "value = {}, name = {}, pi = {:.2f}", value, name, pi);
-    benchmark::DoNotOptimize(result);
-  }
-}
-BENCHMARK(format_std_format_to_n);
+    return std::format_to_n(buffer.data(), buffer.size(),
+                            "value = {}, name = {}, pi = {:.2f}", value, name,
+                            pi);
+  };
 
-void format_fmt_format_to_n(benchmark::State& state) {
-  for (auto _ : state) {
+  BENCHMARK("format_fmt_format_to_n") {
     std::array<char, 128> buffer;
-    auto result = fmt::format_to_n(
-        buffer.data(), buffer.size(),
-        FMT_STRING("value = {}, name = {}, pi = {:.2f}"), value, name, pi);
-    benchmark::DoNotOptimize(result);
-  }
-}
-BENCHMARK(format_fmt_format_to_n);
+    return fmt::format_to_n(buffer.data(), buffer.size(),
+                            "value = {}, name = {}, pi = {:.2f}", value, name,
+                            pi);
+  };
 
-// void format_std_format_dynamic(benchmark::State& state) {
-//   const char* format_str = "value = {}, name = {}, pi = {:.2f}";
-//   for (auto _ : state) {
-//     std::string s = std::format(format_str, value, name, pi);
-//     benchmark::DoNotOptimize(s);
-//   }
-// }
-// BENCHMARK(format_std_format_dynamic);
-
-void format_fmt_format_dynamic(benchmark::State& state) {
-  const char* format_str = "value = {}, name = {}, pi = {:.2f}";
-  for (auto _ : state) {
-    std::string s = fmt::format(fmt::runtime(format_str), value, name, pi);
-    benchmark::DoNotOptimize(s);
-  }
+  BENCHMARK("format_fmt_format_dynamic") {
+    const char* format_str = "value = {}, name = {}, pi = {:.2f}";
+    std::string _ = fmt::format(fmt::runtime(format_str), value, name, pi);
+    return 0;
+  };
 }
-BENCHMARK(format_fmt_format_dynamic);
 
 }  // namespace

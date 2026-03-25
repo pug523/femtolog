@@ -2,16 +2,16 @@
 // This source code is licensed under the Apache License, Version 2.0
 // which can be found in the LICENSE file.
 
-#ifndef INCLUDE_FEMTOLOG_SINKS_SINK_BASE_H_
-#define INCLUDE_FEMTOLOG_SINKS_SINK_BASE_H_
+#pragma once
 
 #include <cstdint>
 #include <ctime>
 
+#include "femtolog/base/check.h"
 #include "femtolog/base/format_util.h"
 #include "femtolog/base/log_entry.h"
 #include "femtolog/build/build_flag.h"
-#include "femtolog/core/check.h"
+#include "fmt/chrono.h"
 #include "fmt/format.h"
 
 #if FEMTOLOG_IS_WINDOWS
@@ -39,16 +39,14 @@ class SinkBase {
   SinkBase(SinkBase&&) noexcept = default;
   SinkBase& operator=(SinkBase&&) noexcept = default;
 
-  virtual inline void on_log(const LogEntry& entry,
+  virtual inline void on_log(const base::LogEntry& entry,
                              const char* content,
                              size_t len) = 0;
 
  protected:
   template <TimeZone tz = TimeZone::kLocal,
-            FixedString fmt = "{:%H:%M:%S}.{:09d} ">
-  static size_t format_timestamp(uint64_t time_ns,
-                                      char* buf,
-                                      size_t buf_size) {
+            base::FixedString fmt = "{:%H:%M:%S}.{:09d} ">
+  static size_t format_timestamp(uint64_t time_ns, char* buf, size_t buf_size) {
     FEMTOLOG_DCHECK(buf);
     FEMTOLOG_DCHECK_GT(buf_size, fmt.size);
 
@@ -72,8 +70,8 @@ class SinkBase {
 #endif
     }
 
-    auto result = fmt::format_to_n(buf, buf_size, FMT_STRING(fmt.data), tm_buf,
-                                   nanoseconds);
+    auto result =
+        fmt::format_to_n(buf, buf_size, fmt.data, tm_buf, nanoseconds);
 
     if (result.size > buf_size - 1) {
       return result.size;
@@ -85,5 +83,3 @@ class SinkBase {
 };
 
 }  // namespace femtolog
-
-#endif  // INCLUDE_FEMTOLOG_SINKS_SINK_BASE_H_

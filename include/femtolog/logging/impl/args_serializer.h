@@ -2,8 +2,7 @@
 // This source code is licensed under the Apache License, Version 2.0
 // which can be found in the LICENSE file.
 
-#ifndef INCLUDE_FEMTOLOG_LOGGING_IMPL_ARGS_SERIALIZER_H_
-#define INCLUDE_FEMTOLOG_LOGGING_IMPL_ARGS_SERIALIZER_H_
+#pragma once
 
 #include <cstddef>
 #include <cstdint>
@@ -13,27 +12,26 @@
 #include <string>
 #include <string_view>
 
+#include "femtolog/base/check.h"
 #include "femtolog/base/format_util.h"
+#include "femtolog/base/memory_util.h"
 #include "femtolog/base/serialize_util.h"
 #include "femtolog/base/string_registry.h"
 #include "femtolog/build/build_flag.h"
-#include "femtolog/core/base/memory_util.h"
-#include "femtolog/core/check.h"
 #include "femtolog/logging/impl/args_deserializer.h"
 
 namespace femtolog::logging {
 
 template <bool ref_mode, typename... Args>
 consteval size_t calculate_min_serialized_size() {
-  size_t total = sizeof(SerializedArgsHeader);
+  size_t total = sizeof(base::SerializedArgsHeader);
   auto add_arg_size = []<typename T>() constexpr -> size_t {
     using Decayed = std::decay_t<T>;
-    if constexpr (is_string_like_v<Decayed>) {
+    if constexpr (base::is_string_like_v<Decayed>) {
       if constexpr (ref_mode) {
-        return sizeof(uintptr_t) + sizeof(size_t);
+        return sizeof(size_t) + sizeof(uintptr_t);
       } else {
-        // dynamic; add lazily
-        return 0;
+        return sizeof(size_t);
       }
     } else if constexpr (std::is_trivially_copyable_v<Decayed>) {
       return sizeof(Decayed);
@@ -54,9 +52,10 @@ consteval size_t calculate_min_serialized_size() {
 template <typename T>
 inline std::string_view to_string_view(const T& value) {
   using Decayed = std::decay_t<T>;
-  static_assert(is_string_like_v<Decayed>, "cannot convert to string view");
+  static_assert(base::is_string_like_v<Decayed>,
+                "cannot convert to string view");
   std::string_view view;
-  if constexpr (is_char_array_v<Decayed>) {
+  if constexpr (base::is_char_array_v<Decayed>) {
     if (value == nullptr) [[unlikely]] {
       view = "(nullptr)";
     } else {
@@ -71,10 +70,11 @@ inline std::string_view to_string_view(const T& value) {
 template <typename T>
 inline void add_dynamic_string_length(size_t* dest, const T& value) {
   using Decayed = std::decay_t<T>;
-  if constexpr (is_string_like_v<Decayed>) {
+  if constexpr (base::is_string_like_v<Decayed>) {
     const std::string_view view = to_string_view(value);
-    const size_t str_len = view.size();
-    *dest += sizeof(str_len) + str_len;
+    // sizeof(size_t) is already accounted for in the total size by
+    // `calculate_min_serialized_size`.
+    *dest += view.size();
   }
 }
 
@@ -82,7 +82,7 @@ template <bool ref_mode, typename T>
 inline void write_arg(char*& pos, const T& value) {
   using Decayed = std::decay_t<T>;
 
-  if constexpr (is_string_like_v<Decayed>) {
+  if constexpr (base::is_string_like_v<Decayed>) {
     if constexpr (ref_mode) {
       const std::string_view view = to_string_view(value);
       const char* cptr = view.data();
@@ -109,7 +109,7 @@ inline void write_arg(char*& pos, const T& value) {
     pos += sizeof(Decayed);
   } else if constexpr (ref_mode) {
     auto ptr = std::addressof(value);
-    std::memcpy(pos, ptr, sizeof(ptr));
+    std::memcpy(pos, &ptr, sizeof(ptr));
     pos += sizeof(ptr);
   } else {
     static_assert(sizeof(Decayed) == 0,
@@ -119,7 +119,7 @@ inline void write_arg(char*& pos, const T& value) {
 
 template <size_t kCapacity = 2048>
 class ArgsSerializer {
-  static_assert(kCapacity >= sizeof(SerializedArgsHeader),
+  static_assert(kCapacity >= sizeof(base::SerializedArgsHeader),
                 "cannot set kCapacity less than size of header");
 
  public:
@@ -132,15 +132,16 @@ class ArgsSerializer {
   ArgsSerializer(ArgsSerializer&&) noexcept = default;
   ArgsSerializer& operator=(ArgsSerializer&&) noexcept = default;
 
-  inline const SerializedArgs<kCapacity>& args() const { return args_; }
-  inline SerializedArgs<kCapacity>& args() { return args_; }
+  inline const base::SerializedArgs<kCapacity>& args() const { return args_; }
+  inline base::SerializedArgs<kCapacity>& args() { return args_; }
 
   // for 0 args: we don't use this
-  template <FixedString fmt, bool ref_mode>
-  inline SerializedArgs<kCapacity>& serialize() = delete;
+  template <base::FixedString fmt, bool ref_mode>
+  inline base::SerializedArgs<kCapacity>& serialize() = delete;
 
-  template <FixedString fmt, bool ref_mode, typename... Args>
-  [[gnu::hot, gnu::always_inline]] inline constexpr SerializedArgs<kCapacity>&
+  template <base::FixedString fmt, bool ref_mode, typename... Args>
+  [[gnu::hot,
+    gnu::always_inline]] inline constexpr base::SerializedArgs<kCapacity>&
   serialize(Args&&... args) {
     constexpr size_t kTotalSizeExcludingDynStr =
         calculate_min_serialized_size<ref_mode, Args...>();
@@ -148,12 +149,12 @@ class ArgsSerializer {
                   "Buffer too small for arguments");
 
     // header
-    constexpr FormatFunction format_function_ptr =
-        FormatDispatcher<fmt>::function();
-    constexpr DeserializeAndFormatFunction deserialize_function_ptr =
+    constexpr base::FormatFunction format_function_ptr =
+        base::FormatDispatcher<fmt>::function();
+    constexpr base::DeserializeAndFormatFunction deserialize_function_ptr =
         DeserializeDispatcher<ref_mode, std::decay_t<Args>...>::function();
-    constexpr SerializedArgsHeader header(format_function_ptr,
-                                          deserialize_function_ptr);
+    constexpr base::SerializedArgsHeader header(format_function_ptr,
+                                                deserialize_function_ptr);
     if constexpr (ref_mode) {
       char* pos = args_.data();
       std::memcpy(pos, &header, sizeof(header));
@@ -169,7 +170,7 @@ class ArgsSerializer {
 
       const size_t total_serialized_size =
           kTotalSizeExcludingDynStr + dynamic_strings_length;
-      if (total_serialized_size >= kCapacity) {
+      if (total_serialized_size > kCapacity) {
         args_.resize(0);
         return args_;
       } else {
@@ -186,7 +187,7 @@ class ArgsSerializer {
   }
 
  private:
-  alignas(core::kCacheSize) SerializedArgs<kCapacity> args_;
+  alignas(base::kCacheSize) base::SerializedArgs<kCapacity> args_;
 };
 
 // Type aliases
@@ -194,10 +195,8 @@ using DefaultSerializer = ArgsSerializer<2048>;
 using SmallSerializer = ArgsSerializer<512>;
 using LargeSerializer = ArgsSerializer<8192>;
 
-using DefaultSerializedArgs = SerializedArgs<2048>;
-using SmallSerializedArgs = SerializedArgs<512>;
-using LargeSerializedArgs = SerializedArgs<8192>;
+using DefaultSerializedArgs = base::SerializedArgs<2048>;
+using SmallSerializedArgs = base::SerializedArgs<512>;
+using LargeSerializedArgs = base::SerializedArgs<8192>;
 
 }  // namespace femtolog::logging
-
-#endif  // INCLUDE_FEMTOLOG_LOGGING_IMPL_ARGS_SERIALIZER_H_

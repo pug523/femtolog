@@ -8,9 +8,9 @@
 #include <memory>
 #include <new>
 
+#include "femtolog/base/check.h"
+#include "femtolog/base/memory_util.h"
 #include "femtolog/build/build_flag.h"
-#include "femtolog/core/base/memory_util.h"
-#include "femtolog/core/check.h"
 
 namespace femtolog::logging {
 
@@ -24,11 +24,11 @@ void SpscQueue::reserve(size_t capacity_bytes) {
 
   // Allocate cache-line aligned buffer for optimal memory access
   // Use larger alignment for better performance on modern CPUs
-  constexpr size_t alignment = core::kCacheSize;
+  constexpr size_t alignment = base::kCacheSize;
   const size_t alloc_size = capacity + alignment;
 
   std::byte* new_buffer = static_cast<std::byte*>(
-      core::aligned_alloc_wrapper(alignment, alloc_size));
+      base::aligned_alloc_wrapper(alignment, alloc_size));
 
   if (!new_buffer) [[unlikely]] {
     buffer_deleter_.reset();

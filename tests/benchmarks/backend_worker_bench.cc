@@ -6,7 +6,8 @@
 #include <memory>
 #include <utility>
 
-#include "benchmark/benchmark.h"
+#include "catch2/benchmark/catch_benchmark.hpp"
+#include "catch2/catch_test_macros.hpp"
 #include "femtolog/logging/impl/backend_worker.h"
 #include "femtolog/sinks/null_sink.h"
 
@@ -14,7 +15,7 @@ namespace femtolog::logging {
 
 namespace {
 
-void backend_worker_run_loop(benchmark::State& state) {
+TEST_CASE("BackendWorker benchmarks", "[benchmark][internal][.]") {
   BackendWorker worker;
   auto sink = std::make_unique<NullSink>();
   FemtologOptions options;
@@ -26,13 +27,12 @@ void backend_worker_run_loop(benchmark::State& state) {
   worker.init(&queue, options);
   worker.register_sink(std::move(sink));
 
-  for (auto _ : state) {
+  BENCHMARK("backend_worker_run_loop") {
     worker.start();
     worker.stop();
-  }
+    return 0;
+  };
 }
-
-BENCHMARK(backend_worker_run_loop);
 
 }  // namespace
 

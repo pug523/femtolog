@@ -2,8 +2,7 @@
 // This source code is licensed under the Apache License, Version 2.0
 // which can be found in the LICENSE file.
 
-#ifndef INCLUDE_FEMTOLOG_BASE_FORMAT_UTIL_H_
-#define INCLUDE_FEMTOLOG_BASE_FORMAT_UTIL_H_
+#pragma once
 
 #include <cstddef>
 #include <cstdint>
@@ -20,14 +19,15 @@
 #include <chrono>
 #endif
 
-namespace femtolog {
+namespace femtolog::base {
 
 template <size_t N>
 struct FixedString {
   char data[N + 1]{};
   size_t size = N;
 
-  consteval FixedString(const char (&str)[N + 1]) {  // NOLINT
+  // NOLINTNEXTLINE(google-explicit-constructor)
+  consteval FixedString(const char (&str)[N + 1]) {
     for (size_t i = 0; i < N; ++i) {
       data[i] = str[i];
     }
@@ -69,6 +69,4 @@ struct FormatDispatcher {
   static constexpr FormatFunction function() { return &format; }
 };
 
-}  // namespace femtolog
-
-#endif  // INCLUDE_FEMTOLOG_BASE_FORMAT_UTIL_H_
+}  // namespace femtolog::base

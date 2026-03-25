@@ -6,16 +6,16 @@
 
 #include <string>
 
+#include "catch2/catch_test_macros.hpp"
 #include "femtolog/logging/impl/args_serializer.h"
 #include "fmt/format.h"
-#include "gtest/gtest.h"
 
 namespace femtolog::logging {
 
 namespace {
 
-TEST(ArgsDeserializerTest, DeserializeAndFormatWorks) {
-  StringRegistry registry;
+TEST_CASE("DeserializeAndFormatWorks", "[ArgsDeserializerTest]") {
+  base::StringRegistry registry;
 
   int i = 42;
   std::string s = "example";
@@ -24,8 +24,8 @@ TEST(ArgsDeserializerTest, DeserializeAndFormatWorks) {
   ArgsSerializer<256> serializer;
   auto& args = serializer.serialize<"i={}, s={}, d={}", false>(i, s, d);
 
-  const SerializedArgsHeader* header =
-      reinterpret_cast<const SerializedArgsHeader*>(args.data());
+  const base::SerializedArgsHeader* header =
+      reinterpret_cast<const base::SerializedArgsHeader*>(args.data());
 
   fmt::memory_buffer buffer;
   size_t size = header->deserialize_and_format_func(
@@ -33,7 +33,7 @@ TEST(ArgsDeserializerTest, DeserializeAndFormatWorks) {
       reinterpret_cast<const char*>(args.data() + sizeof(*header)));
 
   std::string_view formatted(buffer.data(), size);
-  EXPECT_EQ(formatted, "i=42, s=example, d=3.14");
+  CHECK(formatted == "i=42, s=example, d=3.14");
 }
 
 }  // namespace

@@ -4,40 +4,34 @@
 
 #include <string>
 
-#include "benchmark/benchmark.h"
+#include "catch2/benchmark/catch_benchmark.hpp"
+#include "catch2/catch_test_macros.hpp"
 #include "femtolog/logging/impl/args_serializer.h"
 
 namespace femtolog::logging {
 
 namespace {
 
-void args_serializer_serialize_ints(benchmark::State& state) {
-  ArgsSerializer serializer;
-  for (auto _ : state) {
-    benchmark::DoNotOptimize(serializer.serialize<"", false>(1, 2, 3, 4, 5));
-  }
-}
-BENCHMARK(args_serializer_serialize_ints);
+TEST_CASE("ArgsSerializer benchmarks", "[benchmark][internal][.]") {
+  BENCHMARK("args_serializer_serialize_ints") {
+    ArgsSerializer serializer;
+    // Returning the result to prevent optimization in Catch2 v3
+    return serializer.serialize<"", false>(1, 2, 3, 4, 5);
+  };
 
-void args_serializer_serialize_strings(benchmark::State& state) {
-  ArgsSerializer serializer;
-  const char* a = "hello";
-  std::string_view b = "world!";
-  for (auto _ : state) {
-    benchmark::DoNotOptimize(serializer.serialize<"", false>(a, b));
-  }
-}
-BENCHMARK(args_serializer_serialize_strings);
+  BENCHMARK("args_serializer_serialize_strings") {
+    ArgsSerializer serializer;
+    const char* a = "hello";
+    std::string_view b = "world!";
+    return serializer.serialize<"", false>(a, b);
+  };
 
-void args_serializer_serialize_mixed(benchmark::State& state) {
-  ArgsSerializer serializer;
-  std::string_view s = "mixed";
-  for (auto _ : state) {
-    benchmark::DoNotOptimize(
-        serializer.serialize<"", false>(42, true, s, 3.14));
-  }
+  BENCHMARK("args_serializer_serialize_mixed") {
+    ArgsSerializer serializer;
+    std::string_view s = "mixed";
+    return serializer.serialize<"", false>(42, true, s, 3.14);
+  };
 }
-BENCHMARK(args_serializer_serialize_mixed);
 
 }  // namespace
 

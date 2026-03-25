@@ -9,16 +9,16 @@
 #include <string>
 #include <string_view>
 
-#include "gtest/gtest.h"
+#include "catch2/catch_test_macros.hpp"
 
 namespace femtolog::logging {
 
 namespace {
 
-TEST(ArgsSerializerTest, SerializeBasicTypes) {
+TEST_CASE("SerializeBasicTypes", "[ArgsSerializerTest]") {
   const int i = 42;
   const std::string s = "hello";
-  const float f = 1.234;
+  const float f = 1.234f;
   const double d = 1.23456789;
   const char* cstr = "world";
 
@@ -28,26 +28,28 @@ TEST(ArgsSerializerTest, SerializeBasicTypes) {
           .serialize<"int={}, str={}, float={}, double={}, ptr={}", false>(
               i, s, f, d, cstr);
 
-  EXPECT_EQ(args.size(), sizeof(SerializedArgsHeader) + sizeof(i) +
-                             sizeof(size_t) + s.size() + sizeof(float) +
-                             sizeof(double) + sizeof(size_t) + strlen(cstr));
+  CHECK(args.size() == sizeof(base::SerializedArgsHeader) + sizeof(i) +
+                           sizeof(size_t) + s.size() + sizeof(float) +
+                           sizeof(double) + sizeof(size_t) + strlen(cstr));
 
-  auto header = reinterpret_cast<const SerializedArgsHeader*>(args.data());
-  EXPECT_NE(header->deserialize_and_format_func, nullptr);
-  EXPECT_NE(header->format_func, nullptr);
+  auto header =
+      reinterpret_cast<const base::SerializedArgsHeader*>(args.data());
+  CHECK(header->deserialize_and_format_func != nullptr);
+  CHECK(header->format_func != nullptr);
 
   fmt::memory_buffer buf;
   size_t n = header->deserialize_and_format_func(
-      &buf, header->format_func, args.data() + sizeof(SerializedArgsHeader));
+      &buf, header->format_func,
+      args.data() + sizeof(base::SerializedArgsHeader));
 
   const char* formatted_str = buf.data();
-  EXPECT_EQ(std::string_view(formatted_str, n),
-            "int=42, str=hello, float=1.234, double=1.23456789, ptr=world");
+  CHECK(std::string_view(formatted_str, n) ==
+        "int=42, str=hello, float=1.234, double=1.23456789, ptr=world");
 }
 
-TEST(ArgsSerializerTest, OutOfScope) {
+TEST_CASE("OutOfScope", "[ArgsSerializerTest]") {
   ArgsSerializer<256> serializer;
-  SerializedArgs<256>* args_ptr = nullptr;
+  base::SerializedArgs<256>* args_ptr = nullptr;
 
   {
     const int i = 42;
@@ -57,20 +59,21 @@ TEST(ArgsSerializerTest, OutOfScope) {
     args_ptr = &args;
   }
 
-  EXPECT_EQ(args_ptr->size(),
-            sizeof(SerializedArgsHeader) + sizeof(int) + sizeof(size_t) + 4);
+  CHECK(args_ptr->size() ==
+        sizeof(base::SerializedArgsHeader) + sizeof(int) + sizeof(size_t) + 4);
 
-  auto header = reinterpret_cast<const SerializedArgsHeader*>(args_ptr->data());
-  EXPECT_NE(header->deserialize_and_format_func, nullptr);
-  EXPECT_NE(header->format_func, nullptr);
+  auto header =
+      reinterpret_cast<const base::SerializedArgsHeader*>(args_ptr->data());
+  CHECK(header->deserialize_and_format_func != nullptr);
+  CHECK(header->format_func != nullptr);
 
   fmt::memory_buffer buf;
   size_t n = header->deserialize_and_format_func(
       &buf, header->format_func,
-      args_ptr->data() + sizeof(SerializedArgsHeader));
+      args_ptr->data() + sizeof(base::SerializedArgsHeader));
 
   const char* formatted_str = buf.data();
-  EXPECT_EQ(std::string_view(formatted_str, n), "int=42, cstr=test");
+  CHECK(std::string_view(formatted_str, n) == "int=42, cstr=test");
 }
 
 }  // namespace

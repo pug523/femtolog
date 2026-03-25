@@ -2,18 +2,18 @@
 // This source code is licensed under the Apache License, Version 2.0
 // which can be found in the LICENSE file.
 
-#ifndef INCLUDE_FEMTOLOG_SINKS_JSON_LINES_SINK_H_
-#define INCLUDE_FEMTOLOG_SINKS_JSON_LINES_SINK_H_
+#pragma once
 
 #include <fcntl.h>
 
+#include <algorithm>
 #include <memory>
 #include <string>
 
+#include "femtolog/base/file_util.h"
 #include "femtolog/base/log_entry.h"
 #include "femtolog/base/log_level.h"
 #include "femtolog/build/build_flag.h"
-#include "femtolog/core/base/file_util.h"
 #include "femtolog/sinks/sink_base.h"
 
 #if FEMTOLOG_IS_WINDOWS
@@ -30,48 +30,10 @@ template <bool enable_buffering = true>
 class JsonLinesSink final : public SinkBase {
  public:
   explicit JsonLinesSink(const std::string& file_path) : file_path_(file_path) {
-    std::string parent_dir = core::parent_dir(file_path_);
-    if (!core::dir_exists(parent_dir.c_str())) {
-      core::create_directories(parent_dir.c_str());
+    std::string parent_dir = base::parent_dir(file_path_);
+    if (!base::dir_exists(parent_dir.c_str())) {
+      base::create_directories(parent_dir.c_str());
     }
-
-    if (core::file_exists(file_path_.c_str())) {
-      constexpr size_t kTimestampBufSize = 32;
-      char timestamp_buf[kTimestampBufSize];
-      size_t timestamp_size =
-          format_timestamp<TimeZone::kLocal, "{:%Y-%m-%d_%H-%M-%S}">(
-              timestamp_ns(), timestamp_buf, kTimestampBufSize);
-      std::string base_timestamp_name(timestamp_buf, timestamp_size);
-
-      std::string original_file_name_without_ext =
-          core::file_name_without_extension(file_path_);
-      std::string original_extension = core::file_extension(file_path_);
-
-      int counter = 0;
-      std::string compressed_file_name;
-      std::string dest_path;
-
-      do {
-        compressed_file_name = original_file_name_without_ext;
-        compressed_file_name.append("_");
-        compressed_file_name.append(base_timestamp_name);
-
-        if (counter > 0) {
-          compressed_file_name.append("-");
-          compressed_file_name.append(std::to_string(counter));
-        }
-
-        compressed_file_name.append(".");
-        compressed_file_name.append(original_extension);
-        compressed_file_name.append(".gz");
-
-        dest_path = core::join_path(parent_dir, compressed_file_name);
-        counter++;
-      } while (core::file_exists(dest_path.c_str()));
-
-      core::compress(file_path_.c_str(), dest_path.c_str(), true);
-    }
-    core::create_file(file_path_.c_str());
 
 #if FEMTOLOG_IS_WINDOWS
     fd_ =
@@ -88,7 +50,7 @@ class JsonLinesSink final : public SinkBase {
 
   JsonLinesSink()
       : JsonLinesSink(
-            core::join_path(core::exe_dir(), "logs", "jsonl", "latest.jsonl")) {
+            base::join_path(base::exe_dir(), "logs", "jsonl", "latest.jsonl")) {
   }
 
   ~JsonLinesSink() override {
@@ -105,19 +67,21 @@ class JsonLinesSink final : public SinkBase {
     }
   }
 
-  inline void on_log(const LogEntry& entry,
+  inline void on_log(const base::LogEntry& entry,
                      const char* content,
                      size_t len) override {
     // Pre-format JSON line
-    char line[kMaxJsonLineSize];
+    std::string encoded = base::encode_escape(content, len);
     const char* level_str = log_level_to_lower_str(entry.level);
-    std::string encoded = core::encode_escape(content, len);
+
+    char line[kMaxJsonLineSize];
     auto result = fmt::format_to_n(
         line, kMaxJsonLineSize,
         R"({{"timestamp": {}, "level": "{}", "message": "{}"}})"
         "\n",
         entry.timestamp_ns, level_str, fmt::string_view(encoded));
-    size_t line_len = result.size;
+
+    const size_t line_len = std::min(result.size, kMaxJsonLineSize);
 
     if constexpr (!enable_buffering) {
       write_raw(line, line_len);
@@ -126,11 +90,6 @@ class JsonLinesSink final : public SinkBase {
 
     if (cursor_ + line_len > kBufferCapacity) {
       flush();
-    }
-
-    if (line_len > kBufferCapacity) {
-      write_raw(line, line_len);
-      return;
     }
 
     std::memcpy(buffer_.get() + cursor_, line, line_len);
@@ -175,5 +134,3 @@ class JsonLinesSink final : public SinkBase {
 };
 
 }  // namespace femtolog
-
-#endif  // INCLUDE_FEMTOLOG_SINKS_JSON_LINES_SINK_H_
