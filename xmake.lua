@@ -285,8 +285,6 @@ target("femtolog.root_config")
   add_defines("FEMTOLOG_PROJECT_VERSION=\"" .. project_version .. "\"", { public = true })
   add_includedirs("src", "third_party", { public = true })
 
-  -- TODO: Remove this and add SIMD dynamic dispatch
-  add_defines("FEMTOLOG_ENABLE_AVX2=1", { public = true })
 
   if is_plat("linux") then
     add_cxxflags("-fcf-protection=full", "-fPIE", "-fPIC", { public = true })
@@ -298,6 +296,11 @@ target("femtolog.root_config")
     add_defines("FEMTOLOG_IS_PLAT_LINUX=0", "FEMTOLOG_IS_PLAT_MACOS=1", "FEMTOLOG_IS_PLAT_WINDOWS=0", { public = true })
   elseif is_plat("windows") then
     add_defines("FEMTOLOG_IS_PLAT_LINUX=0", "FEMTOLOG_IS_PLAT_MACOS=0", "FEMTOLOG_IS_PLAT_WINDOWS=1", { public = true })
+  end
+
+  if is_arch("x86_64") or is_arch("x64") then
+    -- TODO: Remove this and add SIMD dynamic dispatch
+    add_defines("FEMTOLOG_ENABLE_AVX2=1", { public = true })
   end
 
   if is_mode("debug") then
