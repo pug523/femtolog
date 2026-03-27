@@ -8,12 +8,13 @@
 #include <memory>
 #include <mutex>
 
+#include "base/check.h"
 #include "base/log_entry.h"
 #include "base/log_level.h"
 #include "base/style.h"
 #include "build/build_config.h"
 #include "logging/impl/internal_logger.h"
-#include "options.h"
+#include "options.h"  // NOLINT(build/include_subdir)
 #include "sinks/sink_base.h"
 
 #if FEMTOLOG_BUILD_FLAG(IS_OS_WIN)

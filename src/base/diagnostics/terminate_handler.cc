@@ -4,6 +4,8 @@
 
 #include "base/diagnostics/terminate_handler.h"
 
+#include <cstdlib>
+#include <exception>
 #include <iostream>
 
 #include "base/diagnostics/stack_trace.h"

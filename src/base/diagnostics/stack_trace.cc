@@ -5,12 +5,14 @@
 #include "base/diagnostics/stack_trace.h"
 
 #include <algorithm>
+#include <bit>
 #include <cstdint>
 #include <cstdio>
+#include <cstdlib>
+#include <cstring>
 #include <string>
 
 #include "base/diagnostics/stack_trace_entry.h"
-#include "base/file_util.h"
 #include "base/string_util.h"
 #include "build/build_config.h"
 

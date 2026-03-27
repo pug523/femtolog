@@ -4,14 +4,16 @@
 
 #include <string>
 
+#include "base/log_level.h"
 #include "catch2/catch_test_macros.hpp"
-#include "logger.h"
+#include "logger.h"   // NOLINT(build/include_subdir)
+#include "options.h"  // NOLINT(build/include_subdir)
 #include "sinks/file_sink.h"
 #include "sinks/json_lines_sink.h"
 #include "sinks/stdout_sink.h"
 
 TEST_CASE("README Basic Example", "[FemtoLogTest]") {
-  // NOLINTNEXTLINE(build/namespaces)
+  // NOLINTNEXTLINE(build/namespaces,google-build-using-namespace)
   using namespace femtolog;
 
   // Initialize the logger

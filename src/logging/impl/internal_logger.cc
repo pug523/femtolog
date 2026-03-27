@@ -4,10 +4,15 @@
 
 #include "logging/impl/internal_logger.h"
 
+#include <cstdint>
+#include <memory>
+#include <thread>
 #include <utility>
 
+#include "base/check.h"
 #include "logging/impl/backend_worker.h"
-#include "options.h"
+#include "options.h"  // NOLINT(build/include_subdir)
+#include "sinks/sink_base.h"
 
 namespace femtolog::logging {
 

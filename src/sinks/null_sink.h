@@ -4,6 +4,8 @@
 
 #pragma once
 
+#include <cstddef>
+
 #include "base/log_entry.h"
 #include "sinks/sink_base.h"
 

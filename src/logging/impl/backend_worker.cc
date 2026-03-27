@@ -4,22 +4,31 @@
 
 #include "logging/impl/backend_worker.h"
 
+#include <atomic>
+#include <cerrno>
+#include <chrono>
+#include <cstddef>
+#include <cstdint>
 #include <iostream>
 #include <limits>
+#include <memory>
+#include <thread>
 #include <utility>
 #include <vector>
 
 #include "base/check.h"
-#include "base/log_level.h"
+#include "base/format_util.h"
+#include "base/log_entry.h"
+#include "base/serialize_util.h"
 #include "base/string_registry.h"
 #include "build/build_config.h"
-#include "femtolog.h"
 #include "fmt/args.h"
 #include "fmt/core.h"
 #include "fmt/format.h"
-#include "logging/impl/args_deserializer.h"
 #include "logging/impl/internal_logger.h"
-#include "options.h"
+#include "logging/impl/spsc_queue.h"
+#include "options.h"  // NOLINT(build/include_subdir)
+#include "sinks/sink_base.h"
 
 #if FEMTOLOG_ENABLE_AVX2
 #include <immintrin.h>

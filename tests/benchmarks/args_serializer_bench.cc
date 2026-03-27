@@ -3,6 +3,7 @@
 // which can be found in the LICENSE file.
 
 #include <string>
+#include <string_view>
 
 #include "catch2/benchmark/catch_benchmark.hpp"
 #include "catch2/catch_test_macros.hpp"

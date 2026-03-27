@@ -3,12 +3,12 @@
 // which can be found in the LICENSE file.
 
 #include <chrono>
+#include <cstdint>
 #include <memory>
 #include <string>
 #include <string_view>
 #include <thread>
 
-#include "benchmarks/benchmark_util.h"
 #include "catch2/benchmark/catch_benchmark.hpp"
 #include "catch2/catch_test_macros.hpp"
 #include "g3log/g3log.hpp"

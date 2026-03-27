@@ -9,6 +9,8 @@
 #include <utility>
 
 #include "catch2/catch_test_macros.hpp"
+#include "logging/impl/spsc_queue.h"
+#include "options.h"  // NOLINT(build/include_subdir)
 #include "sinks/null_sink.h"
 
 namespace femtolog::logging {

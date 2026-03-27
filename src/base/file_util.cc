@@ -9,7 +9,6 @@
 #include <chrono>
 #include <utility>
 
-#include "base/check.h"
 #include "build/build_config.h"
 
 #if FEMTOLOG_BUILD_FLAG(IS_OS_WIN)

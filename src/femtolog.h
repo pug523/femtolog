@@ -4,6 +4,7 @@
 
 #pragma once
 
+// NOLINTBEGIN
 #include "base/diagnostics/signal_handler.h"
 #include "base/diagnostics/stack_trace.h"
 #include "base/diagnostics/terminate_handler.h"
@@ -18,3 +19,4 @@
 #include "sinks/null_sink.h"
 #include "sinks/sink_base.h"
 #include "sinks/stdout_sink.h"
+// NOLINTEND

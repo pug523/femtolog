@@ -4,6 +4,7 @@
 
 #include "logging/impl/spsc_queue.h"
 
+#include <cstdint>
 #include <string>
 #include <vector>
 

@@ -5,6 +5,9 @@
 #pragma once
 
 #include <algorithm>
+#include <cstddef>
+#include <cstdint>
+#include <cstring>
 #include <string_view>
 
 #include "base/log_level.h"

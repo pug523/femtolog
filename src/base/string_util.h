@@ -5,13 +5,16 @@
 #pragma once
 
 #include <array>
+#include <cstddef>
 #include <cstdint>
 #include <cstdio>
 #include <cstring>
 #include <format>
+#include <ostream>
 #include <queue>
 #include <string>
 #include <string_view>
+#include <type_traits>
 #include <utility>
 
 namespace femtolog::base {

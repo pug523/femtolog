@@ -3,15 +3,15 @@
 // which can be found in the LICENSE file.
 
 #include <chrono>
+#include <cstdint>
 #include <string>
+#include <string_view>
 #include <thread>
 
-#include "benchmarks/benchmark_util.h"
 #include "catch2/benchmark/catch_benchmark.hpp"
 #include "catch2/catch_test_macros.hpp"
-#include "logger.h"
-#include "options.h"
-#include "sinks/file_sink.h"
+#include "logger.h"   // NOLINT(build/include_subdir)
+#include "options.h"  // NOLINT(build/include_subdir)
 #include "sinks/null_sink.h"
 #include "sinks/stdout_sink.h"
 

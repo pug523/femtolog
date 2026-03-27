@@ -4,13 +4,17 @@
 
 #pragma once
 
+#include <bit>
+#include <cstdint>
 #include <cstring>
 #include <string>
+#include <string_view>
 #include <tuple>
+#include <type_traits>
 #include <utility>
 
+#include "base/format_util.h"
 #include "base/serialize_util.h"
-#include "base/string_registry.h"
 #include "fmt/args.h"
 
 namespace femtolog::logging {
@@ -91,7 +95,7 @@ class DeserializeDispatcher {
                           fmt::make_format_args(arg0, arg1, arg2, arg3));
     } else {
       size_t offset = 0;
-      const auto args = std::make_tuple([&]<typename T>(T) {
+      const auto args = std::make_tuple([&]<typename T>(const T&) {
         auto [arg, next_offset] = read_arg<T>(data, offset);
         offset = next_offset;
         return arg;

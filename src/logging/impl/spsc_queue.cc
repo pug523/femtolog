@@ -4,6 +4,8 @@
 
 #include "logging/impl/spsc_queue.h"
 
+#include <atomic>
+#include <cstddef>
 #include <cstring>
 #include <memory>
 #include <new>
@@ -14,7 +16,7 @@
 
 namespace femtolog::logging {
 
-SpscQueue::SpscQueue() : buffer_(nullptr), buffer_deleter_(nullptr) {}
+SpscQueue::SpscQueue() : buffer_deleter_(nullptr) {}
 
 void SpscQueue::reserve(size_t capacity_bytes) {
   FEMTOLOG_DCHECK_GT(capacity_bytes, 0);

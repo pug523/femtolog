@@ -8,10 +8,13 @@
 #include <array>
 #include <cctype>
 #include <charconv>
+#include <cstdint>
 #include <cstring>
 #include <cuchar>
 #include <queue>
 #include <string>
+#include <string_view>
+#include <system_error>
 #include <vector>
 
 namespace femtolog::base {

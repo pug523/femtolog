@@ -5,6 +5,7 @@
 #include "base/diagnostics/signal_handler.h"
 
 #include <csignal>
+#include <cstdlib>
 #include <ctime>
 #include <iostream>
 #include <thread>

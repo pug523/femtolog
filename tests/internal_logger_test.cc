@@ -5,6 +5,8 @@
 #include "logging/impl/internal_logger.h"
 
 #include <chrono>
+#include <cstddef>
+#include <cstdint>
 #include <memory>
 #include <mutex>
 #include <string>
@@ -12,10 +14,11 @@
 #include <utility>
 #include <vector>
 
+#include "base/format_util.h"
 #include "base/log_entry.h"
 #include "base/log_level.h"
+#include "base/string_registry.h"
 #include "catch2/catch_all.hpp"
-#include "options.h"
 #include "sinks/sink_base.h"
 
 namespace femtolog::logging {

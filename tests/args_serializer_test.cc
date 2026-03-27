@@ -9,6 +9,7 @@
 #include <string>
 #include <string_view>
 
+#include "base/serialize_util.h"
 #include "catch2/catch_test_macros.hpp"
 
 namespace femtolog::logging {

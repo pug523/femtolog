@@ -7,12 +7,15 @@
 #include <fcntl.h>
 
 #include <algorithm>
+#include <cstddef>
+#include <cstring>
 #include <memory>
 #include <string>
 
 #include "base/file_util.h"
 #include "base/log_entry.h"
 #include "base/log_level.h"
+#include "base/string_util.h"
 #include "build/build_config.h"
 #include "sinks/sink_base.h"
 

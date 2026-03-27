@@ -2,11 +2,12 @@
 // This source code is licensed under the Apache License, Version 2.0
 // which can be found in the LICENSE file.
 
+#include <cstddef>
 #include <string>
 
+#include "base/serialize_util.h"
 #include "catch2/benchmark/catch_benchmark.hpp"
 #include "catch2/catch_test_macros.hpp"
-#include "logging/impl/args_deserializer.h"
 #include "logging/impl/args_serializer.h"
 
 namespace femtolog::logging {

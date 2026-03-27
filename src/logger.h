@@ -10,9 +10,10 @@
 #include <utility>
 
 #include "base/format_util.h"
+#include "base/log_level.h"
 #include "logging/impl/backend_worker.h"
 #include "logging/impl/internal_logger.h"
-#include "options.h"
+#include "options.h"  // NOLINT(build/include_subdir)
 #include "sinks/sink_base.h"
 
 namespace femtolog {

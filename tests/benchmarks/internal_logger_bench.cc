@@ -2,6 +2,9 @@
 // This source code is licensed under the Apache License, Version 2.0
 // which can be found in the LICENSE file.
 
+#include <memory>
+
+#include "base/log_level.h"
 #include "catch2/benchmark/catch_benchmark.hpp"
 #include "catch2/catch_test_macros.hpp"
 #include "logging/impl/internal_logger.h"

@@ -105,7 +105,7 @@ class FileSink final : public SinkBase {
 #if FEMTOLOG_BUILD_FLAG(IS_OS_WIN)
     _write(fd_, buffer_.get(), static_cast<unsigned int>(cursor_));
 #else
-    const auto _ = write(fd_, buffer_.get(), cursor_);
+    [[maybe_unused]] const auto _ = write(fd_, buffer_.get(), cursor_);
 #endif
     cursor_ = 0;
   }
@@ -132,7 +132,7 @@ class FileSink final : public SinkBase {
     iov[1] = {const_cast<char*>(level_str), level_len};
     iov[2] = {const_cast<char*>(kSep), kSepLen};
     iov[3] = {const_cast<char*>(content), content_len};
-    const auto _ = writev(fd_, iov, kIovCount);
+    [[maybe_unused]] const auto _ = writev(fd_, iov, kIovCount);
 #endif
   }
 

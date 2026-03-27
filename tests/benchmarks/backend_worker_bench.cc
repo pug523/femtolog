@@ -2,6 +2,7 @@
 // This source code is licensed under the Apache License, Version 2.0
 // which can be found in the LICENSE file.
 
+#include <cstddef>
 #include <limits>
 #include <memory>
 #include <utility>
@@ -9,6 +10,8 @@
 #include "catch2/benchmark/catch_benchmark.hpp"
 #include "catch2/catch_test_macros.hpp"
 #include "logging/impl/backend_worker.h"
+#include "logging/impl/spsc_queue.h"
+#include "options.h"  // NOLINT(build/include_subdir)
 #include "sinks/null_sink.h"
 
 namespace femtolog::logging {

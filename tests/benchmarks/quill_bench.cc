@@ -3,14 +3,15 @@
 // which can be found in the LICENSE file.
 
 #include <chrono>
+#include <cstddef>
+#include <cstdint>
 #include <string>
+#include <string_view>
 #include <thread>
 
-#include "base/format_util.h"
-#include "benchmarks/benchmark_util.h"
 #include "catch2/benchmark/catch_benchmark.hpp"
 #include "catch2/catch_test_macros.hpp"
-#include "options.h"
+#include "options.h"  // NOLINT(build/include_subdir)
 
 #define QUILL_NO_EXCEPTIONS
 #include "quill/Backend.h"

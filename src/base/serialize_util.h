@@ -9,11 +9,12 @@
 #include <cstdint>
 #include <new>
 #include <string>
+#include <string_view>
+#include <type_traits>
 
 #include "base/check.h"
 #include "base/format_util.h"
 #include "base/memory_util.h"
-#include "base/string_registry.h"
 
 namespace femtolog::base {
 

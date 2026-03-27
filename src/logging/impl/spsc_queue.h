@@ -6,6 +6,7 @@
 
 #include <atomic>
 #include <cstddef>
+#include <cstdint>
 #include <memory>
 #include <new>
 
@@ -89,7 +90,7 @@ class SpscQueue {
   [[nodiscard]] static constexpr size_t next_power_of_2(size_t n) noexcept;
 
   // Cache line aligned buffer
-  alignas(base::kCacheSize) std::byte* buffer_;
+  alignas(base::kCacheSize) std::byte* buffer_ = nullptr;
   size_t capacity_ = 0;
   size_t mask_ = 0;
 
@@ -122,7 +123,7 @@ constexpr size_t SpscQueue::next_power_of_2(size_t n) noexcept {
   }
 
   // Use builtin count loading zeros for better performance
-  return size_t(1) << (64 - __builtin_clzll(n - 1));
+  return static_cast<size_t>(1) << (64 - __builtin_clzll(n - 1));
 }
 
 }  // namespace femtolog::logging

@@ -5,14 +5,15 @@
 #pragma once
 
 #include <atomic>
+#include <cstddef>
+#include <cstdint>
+#include <memory>
 #include <thread>
 #include <vector>
 
 #include "base/log_entry.h"
-#include "base/string_registry.h"
-#include "logging/impl/args_deserializer.h"
 #include "logging/impl/spsc_queue.h"
-#include "options.h"
+#include "options.h"  // NOLINT(build/include_subdir)
 #include "sinks/sink_base.h"
 
 namespace femtolog::logging {

@@ -4,17 +4,24 @@
 
 #pragma once
 
+#include <cstddef>
+#include <cstdint>
+#include <exception>
 #include <memory>
 #include <new>
+#include <string_view>
 #include <utility>
 
+#include "base/format_util.h"
 #include "base/log_entry.h"
 #include "base/log_level.h"
+#include "base/memory_util.h"
+#include "base/serialize_util.h"
 #include "base/string_registry.h"
 #include "logging/impl/args_serializer.h"
 #include "logging/impl/backend_worker.h"
 #include "logging/impl/spsc_queue.h"
-#include "options.h"
+#include "options.h"  // NOLINT(build/include_subdir)
 #include "sinks/sink_base.h"
 
 namespace femtolog::logging {
