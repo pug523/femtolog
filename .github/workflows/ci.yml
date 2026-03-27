@@ -25,15 +25,12 @@ jobs:
           - os: ubuntu-24.04
             plat: linux
             arch: x86_64
-            stdlib: libc++
           - os: windows-2025-vs2026
             plat: windows
             arch: x64
-            stdlib: msvc
           - os: macos-26
             plat: macosx
             arch: arm64
-            stdlib: libc++
       fail-fast: false
     runs-on: ${{ matrix.os }}
     name: build and test (${{ matrix.os }})
@@ -78,8 +75,6 @@ jobs:
             --tests=y \
             --coverage=y \
             --sanitizers=y \
-            # --toolchain=llvm \
-            # --stdlib="${{ matrix.stdlib }}" \
             --unitybuild=y \
             -p "${{ matrix.plat }}" \
             -a "${{ matrix.arch }}"
