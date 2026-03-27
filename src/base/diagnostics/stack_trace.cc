@@ -25,7 +25,7 @@
 #include <unistd.h>
 #endif
 
-#if FEMTOLOG_ENABLE_LLVM_UNWIND
+#ifdef FEMTOLOG_ENABLE_LLVM_UNWIND
 #include <libunwind.h>
 #elif FEMTOLOG_BUILD_FLAG(IS_OS_POSIX)
 #include <execinfo.h>
@@ -106,14 +106,14 @@ bool is_valid_address(uintptr_t addr) {
 
 // Basic sanity check for user space addresses
 // This is a conservative check that should work on most systems
-#if FEMTOLOG_ARCH_X64
+#if FEMTOLOG_BUILD_FLAG(IS_ARCH_X86_64)
   // 64-bit: user space typically below 0x800000000000
-  if (addr >= 0x800000000000ULL) {
+  if (addr >= 0x800000000000ULL) [[unlikely]] {
     return false;
   }
-#elif FEMTOLOG_ARCH_X86
+#elif FEMTOLOG_BUILD_FLAG(IS_ARCH_X86)
   // 32-bit: user space typically below 0xC0000000
-  if (addr >= 0xC0000000UL) {
+  if (addr >= 0xC0000000UL) [[unlikely]] {
     return false;
   }
 #endif
@@ -138,7 +138,7 @@ size_t collect_stack_trace(StackTraceEntry out[kPlatformMaxFrames],
     return 0;
   }
 
-#if FEMTOLOG_ENABLE_LLVM_UNWIND
+#ifdef FEMTOLOG_ENABLE_LLVM_UNWIND
   unw_context_t context;
   if (unw_getcontext(&context) != 0) {
     return 0;
