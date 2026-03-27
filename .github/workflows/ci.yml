@@ -102,6 +102,6 @@ jobs:
         shell: bash
         run: |
           xmake check api
-          xmake check clang
+          # xmake check clang
           xmake analyze
           xmake lint

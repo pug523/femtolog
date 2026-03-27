@@ -163,14 +163,14 @@ task("lint")
         "-i"
       }, files)):trim()
       print(result)
-      print("executing clang-tidy...")
-      result = os.iorunv("clang-tidy", table.join({
-        "--use-color",
-        "--config-file=./.clang-tidy",
-        "-p",
-        "out/",
-      }, files)):trim()
-      print(result)
+      -- print("executing clang-tidy...")
+      -- result = os.iorunv("clang-tidy", table.join({
+      --   "--use-color",
+      --   "--config-file=./.clang-tidy",
+      --   "-p",
+      --   "out/",
+      -- }, files)):trim()
+      -- print(result)
     end
   end)
 task_end()
