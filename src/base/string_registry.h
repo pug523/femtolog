@@ -12,7 +12,7 @@
 
 #include "base/check.h"
 #include "base/format_util.h"
-#include "build/build_flag.h"
+#include "build/build_config.h"
 
 namespace femtolog::base {
 

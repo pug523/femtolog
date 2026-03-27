@@ -7,7 +7,7 @@
 #include <cstddef>
 #include <string>
 
-#include "build/build_flag.h"
+#include "build/build_config.h"
 
 namespace femtolog::base {
 
@@ -15,11 +15,11 @@ struct StackTraceEntry;
 
 static constexpr size_t kDefaultFirstFrame = 1;
 
-#if FEMTOLOG_IS_WINDOWS
+#if FEMTOLOG_BUILD_FLAG(IS_OS_WIN)
 static constexpr size_t kPlatformMaxFrames = 62;
-#elif FEMTOLOG_IS_MAC
+#elif FEMTOLOG_BUILD_FLAG(IS_OS_MAC)
 static constexpr size_t kPlatformMaxFrames = 128;
-#elif FEMTOLOG_IS_LINUX
+#elif FEMTOLOG_BUILD_FLAG(IS_OS_LINUX)
 static constexpr size_t kPlatformMaxFrames = 64;
 #else
 static constexpr size_t kPlatformMaxFrames = 64;

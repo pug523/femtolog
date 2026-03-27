@@ -10,9 +10,9 @@
 #include <thread>
 
 #include "base/diagnostics/stack_trace.h"
-#include "build/build_flag.h"
+#include "build/build_config.h"
 
-#if FEMTOLOG_IS_WINDOWS
+#if FEMTOLOG_BUILD_FLAG(IS_OS_WIN)
 #include <windows.h>
 #else
 #include <unistd.h>
@@ -23,7 +23,7 @@ namespace femtolog::base {
 namespace {
 
 inline int get_pid() {
-#if FEMTOLOG_IS_WINDOWS
+#if FEMTOLOG_BUILD_FLAG(IS_OS_WIN)
   return static_cast<int>(GetCurrentProcessId());
 #else
   return getpid();

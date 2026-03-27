@@ -10,7 +10,7 @@
 
 #include "base/check.h"
 #include "base/memory_util.h"
-#include "build/build_flag.h"
+#include "build/build_config.h"
 
 namespace femtolog::logging {
 

@@ -10,7 +10,7 @@
 #include <string>
 #include <vector>
 
-#include "build/build_flag.h"
+#include "build/build_config.h"
 
 #if FEMTOLOG_ENABLE_AVX2
 #include <immintrin.h>
@@ -21,6 +21,14 @@ namespace femtolog::base {
 constexpr const size_t kPathMaxLength = 4096;
 // constexpr const size_t kPredictedFilesNbPerDir = 64;
 // using Files = std::vector<std::string>;
+
+#if FEMTOLOG_BUILD_FLAG(IS_OS_WIN)
+constexpr const char kDirSeparator = '\\';
+#elif FEMTOLOG_BUILD_FLAG(IS_OS_MAC)
+constexpr const char kDirSeparator = '/';
+#elif FEMTOLOG_BUILD_FLAG(IS_OS_LINUX)
+constexpr const char kDirSeparator = '/';
+#endif
 
 [[nodiscard]] bool dir_exists(const char* dir_name);
 [[nodiscard]] const std::string& exe_path();
@@ -55,7 +63,7 @@ template <typename... Parts>
         std::string sanitized = sanitize_component(part.c_str(), is_first);
         if (!sanitized.empty()) {
           if (!is_first) {
-            joined.push_back(FEMTOLOG_DIR_SEPARATOR);
+            joined.push_back(kDirSeparator);
           }
           joined.append(sanitized);
           is_first = false;

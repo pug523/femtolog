@@ -11,12 +11,12 @@
 #include "base/log_entry.h"
 #include "base/log_level.h"
 #include "base/style.h"
-#include "build/build_flag.h"
+#include "build/build_config.h"
 #include "logging/impl/internal_logger.h"
 #include "options.h"
 #include "sinks/sink_base.h"
 
-#if FEMTOLOG_IS_WINDOWS
+#if FEMTOLOG_BUILD_FLAG(IS_OS_WIN)
 #include <io.h>
 #else
 #include <sys/uio.h>
@@ -106,7 +106,7 @@ class StdoutSink final : public SinkBase {
         return;
       }
       lock();
-#if FEMTOLOG_IS_WINDOWS
+#if FEMTOLOG_BUILD_FLAG(IS_OS_WIN)
       _write(kStdOutFd, buffer_.get(), static_cast<unsigned int>(cursor_));
 #else
       const auto _ = write(kStdOutFd, buffer_.get(), cursor_);
@@ -122,7 +122,7 @@ class StdoutSink final : public SinkBase {
     char tmp[kBufferCapacity];
     size_t total = build_message(tmp, level, content, len);
     lock();
-#if FEMTOLOG_IS_WINDOWS
+#if FEMTOLOG_BUILD_FLAG(IS_OS_WIN)
     _write(kStdOutFd, tmp, static_cast<unsigned int>(total));
 #else
     const auto _ = write(kStdOutFd, tmp, total);

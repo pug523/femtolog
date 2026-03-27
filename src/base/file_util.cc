@@ -10,9 +10,9 @@
 #include <utility>
 
 #include "base/check.h"
-#include "build/build_flag.h"
+#include "build/build_config.h"
 
-#if FEMTOLOG_IS_WINDOWS
+#if FEMTOLOG_BUILD_FLAG(IS_OS_WIN)
 #define WIN32_LEAN_AND_MEAN
 #undef APIENTRY
 #include <io.h>
@@ -41,7 +41,7 @@
 namespace femtolog::base {
 
 bool dir_exists(const char* dir_name) {
-#if FEMTOLOG_IS_WINDOWS
+#if FEMTOLOG_BUILD_FLAG(IS_OS_WIN)
   DWORD attributes = GetFileAttributesA(dir_name);
   return (attributes != INVALID_FILE_ATTRIBUTES &&
           (attributes & FILE_ATTRIBUTE_DIRECTORY));
@@ -53,7 +53,7 @@ bool dir_exists(const char* dir_name) {
 
 const std::string& exe_path() {
   static const std::string cached_path = []() -> std::string {
-#if FEMTOLOG_IS_WINDOWS
+#if FEMTOLOG_BUILD_FLAG(IS_OS_WIN)
     char path[MAX_PATH] = {};
     DWORD len = GetModuleFileNameA(nullptr, path, MAX_PATH);
     if (len == 0 || len >= MAX_PATH) {
@@ -83,7 +83,7 @@ const std::string& exe_dir() {
 }
 
 std::string parent_dir(const std::string& path) {
-  size_t pos = path.find_last_of(FEMTOLOG_DIR_SEPARATOR);
+  size_t pos = path.find_last_of(kDirSeparator);
   if (pos == std::string::npos) {
     return "";
   }
@@ -91,7 +91,7 @@ std::string parent_dir(const std::string& path) {
 }
 
 int create_directory(const char* path) {
-#if FEMTOLOG_IS_WINDOWS
+#if FEMTOLOG_BUILD_FLAG(IS_OS_WIN)
   BOOL ok = CreateDirectoryA(path, nullptr);
   if (!ok && GetLastError() != ERROR_ALREADY_EXISTS) {
     return -1;
@@ -108,7 +108,7 @@ int create_directories(const char* path) {
   int result = 0;
 
   while (pos < sanitized_path.size()) {
-    size_t next_pos = sanitized_path.find(FEMTOLOG_DIR_SEPARATOR, pos);
+    size_t next_pos = sanitized_path.find(kDirSeparator, pos);
     std::string dir;
 
     if (next_pos != std::string::npos) {
@@ -134,13 +134,12 @@ std::string sanitize_component(const char* part, bool is_first) {
   std::string result = part;
 
   // Remove leading separator if not first
-  if (!is_first && !result.empty() &&
-      result.front() == FEMTOLOG_DIR_SEPARATOR) {
+  if (!is_first && !result.empty() && result.front() == kDirSeparator) {
     result.erase(0, 1);
   }
 
   // Remove trailing separator
-  if (!result.empty() && result.back() == FEMTOLOG_DIR_SEPARATOR) {
+  if (!result.empty() && result.back() == kDirSeparator) {
     result.pop_back();
   }
 

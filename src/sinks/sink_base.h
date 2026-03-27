@@ -10,11 +10,11 @@
 #include "base/check.h"
 #include "base/format_util.h"
 #include "base/log_entry.h"
-#include "build/build_flag.h"
+#include "build/build_config.h"
 #include "fmt/chrono.h"
 #include "fmt/format.h"
 
-#if FEMTOLOG_IS_WINDOWS
+#if FEMTOLOG_BUILD_FLAG(IS_OS_WIN)
 #include <io.h>
 #include <windows.h>
 #else
@@ -57,13 +57,13 @@ class SinkBase {
     // convert seconds to struct tm (thread-safe)
     std::tm tm_buf;
     if constexpr (tz == TimeZone::kUtc) {
-#if FEMTOLOG_IS_WINDOWS
+#if FEMTOLOG_BUILD_FLAG(IS_OS_WIN)
       gmtime_s(&tm_buf, &seconds);
 #else
       gmtime_r(&seconds, &tm_buf);
 #endif
     } else if constexpr (tz == TimeZone::kLocal) {
-#if FEMTOLOG_IS_WINDOWS
+#if FEMTOLOG_BUILD_FLAG(IS_OS_WIN)
       localtime_s(&tm_buf, &seconds);
 #else
       localtime_r(&seconds, &tm_buf);

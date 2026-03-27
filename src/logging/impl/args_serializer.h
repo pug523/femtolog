@@ -17,7 +17,7 @@
 #include "base/memory_util.h"
 #include "base/serialize_util.h"
 #include "base/string_registry.h"
-#include "build/build_flag.h"
+#include "build/build_config.h"
 #include "logging/impl/args_deserializer.h"
 
 namespace femtolog::logging {

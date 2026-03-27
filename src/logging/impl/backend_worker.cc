@@ -12,7 +12,7 @@
 #include "base/check.h"
 #include "base/log_level.h"
 #include "base/string_registry.h"
-#include "build/build_flag.h"
+#include "build/build_config.h"
 #include "femtolog.h"
 #include "fmt/args.h"
 #include "fmt/core.h"
@@ -25,9 +25,9 @@
 #include <immintrin.h>
 #endif
 
-#if FEMTOLOG_IS_WINDOWS
+#if FEMTOLOG_BUILD_FLAG(IS_OS_WIN)
 #include <windows.h>
-#elif FEMTOLOG_IS_LINUX
+#elif FEMTOLOG_BUILD_FLAG(IS_OS_LINUX)
 #include <pthread.h>
 #include <sched.h>  // for CPU_ZERO, CPU_SET
 #endif
@@ -118,7 +118,7 @@ void BackendWorker::set_cpu_affinity() {
     // Affinity is disabled
     return;
   }
-#if FEMTOLOG_IS_LINUX
+#if FEMTOLOG_BUILD_FLAG(IS_OS_LINUX)
   cpu_set_t cpuset;
   CPU_ZERO(&cpuset);
   CPU_SET(worker_thread_cpu_affinity_, &cpuset);
@@ -128,7 +128,7 @@ void BackendWorker::set_cpu_affinity() {
     std::cerr << "Failed to set thread affinity to BackendWorker "
               << worker_thread_cpu_affinity_ << " (errno=" << errno << ")\n";
   }
-#elif FEMTOLOG_IS_WINDOWS
+#elif FEMTOLOG_BUILD_FLAG(IS_OS_WIN)
   DWORD_PTR mask = 1ull << worker_thread_cpu_affinity_;
   HANDLE handle = static_cast<HANDLE>(worker_thread_.native_handle());
   DWORD_PTR result = SetThreadAffinityMask(handle, mask);

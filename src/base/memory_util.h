@@ -10,11 +10,11 @@
 #include <cstdlib>
 #include <cstring>
 
-#include "build/build_flag.h"
+#include "build/build_config.h"
 
-#if FEMTOLOG_IS_WINDOWS
+#if FEMTOLOG_BUILD_FLAG(IS_OS_WIN)
 #include <windows.h>
-#elif FEMTOLOG_IS_LINUX
+#elif FEMTOLOG_BUILD_FLAG(IS_OS_LINUX)
 #include <sys/mman.h>
 #endif
 
@@ -24,7 +24,7 @@ namespace femtolog::base {
 
 // Optimized memory allocation with proper alignment
 inline void* aligned_alloc_wrapper(size_t alignment, size_t size) {
-#if FEMTOLOG_IS_WINDOWS
+#if FEMTOLOG_BUILD_FLAG(IS_OS_WIN)
   return _aligned_malloc(size, alignment);
 #else
   void* ptr = nullptr;
@@ -36,7 +36,7 @@ inline void* aligned_alloc_wrapper(size_t alignment, size_t size) {
 }
 
 inline void aligned_free_wrapper(void* ptr) {
-#if FEMTOLOG_IS_WINDOWS
+#if FEMTOLOG_BUILD_FLAG(IS_OS_WIN)
   _aligned_free(ptr);
 #else
   free(ptr);

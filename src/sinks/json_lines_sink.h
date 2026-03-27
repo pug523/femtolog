@@ -13,10 +13,10 @@
 #include "base/file_util.h"
 #include "base/log_entry.h"
 #include "base/log_level.h"
-#include "build/build_flag.h"
+#include "build/build_config.h"
 #include "sinks/sink_base.h"
 
-#if FEMTOLOG_IS_WINDOWS
+#if FEMTOLOG_BUILD_FLAG(IS_OS_WIN)
 #include <io.h>
 #include <windows.h>
 #else
@@ -35,7 +35,7 @@ class JsonLinesSink final : public SinkBase {
       base::create_directories(parent_dir.c_str());
     }
 
-#if FEMTOLOG_IS_WINDOWS
+#if FEMTOLOG_BUILD_FLAG(IS_OS_WIN)
     fd_ =
         _open(file_path_.c_str(), _O_WRONLY | _O_CREAT | _O_APPEND | _O_BINARY,
               _S_IREAD | _S_IWRITE);
@@ -59,7 +59,7 @@ class JsonLinesSink final : public SinkBase {
     }
 
     if (fd_ >= 0) {
-#if FEMTOLOG_IS_WINDOWS
+#if FEMTOLOG_BUILD_FLAG(IS_OS_WIN)
       _close(fd_);
 #else
       close(fd_);
@@ -102,7 +102,7 @@ class JsonLinesSink final : public SinkBase {
       if (cursor_ == 0 || !buffer_ || fd_ < 0) {
         return;
       }
-#if FEMTOLOG_IS_WINDOWS
+#if FEMTOLOG_BUILD_FLAG(IS_OS_WIN)
       _write(fd_, buffer_.get(), static_cast<uint32_t>(cursor_));
 #else
       const auto _ = write(fd_, buffer_.get(), cursor_);
@@ -116,7 +116,7 @@ class JsonLinesSink final : public SinkBase {
       return;
     }
 
-#if FEMTOLOG_IS_WINDOWS
+#if FEMTOLOG_BUILD_FLAG(IS_OS_WIN)
     _write(fd_, data, static_cast<uint32_t>(size));
 #else
     const auto _ = write(fd_, data, size);

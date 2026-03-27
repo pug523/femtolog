@@ -63,7 +63,7 @@ uint32_t InternalLogger::current_thread_id() noexcept {
 // static
 bool InternalLogger::is_ansi_sequence_available() {
   static const bool result = [] {
-#if FEMTOLOG_IS_WINDOWS
+#if FEMTOLOG_BUILD_FLAG(IS_OS_WIN)
     // check if GetStdHandle() returns terminal handle
     HANDLE h_out = GetStdHandle(STD_OUTPUT_HANDLE);
     if (h_out == INVALID_HANDLE_VALUE) {

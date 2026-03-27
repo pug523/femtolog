@@ -12,14 +12,14 @@
 #include "base/diagnostics/stack_trace_entry.h"
 #include "base/file_util.h"
 #include "base/string_util.h"
-#include "build/build_flag.h"
+#include "build/build_config.h"
 
-#if FEMTOLOG_IS_WINDOWS
+#if FEMTOLOG_BUILD_FLAG(IS_OS_WIN)
 // clang-format off
 #include <windows.h>
 #include <dbghelp.h>
 // clang-format on
-#elif FEMTOLOG_IS_POSIX
+#elif FEMTOLOG_BUILD_FLAG(IS_OS_POSIX)
 #include <cxxabi.h>
 #include <dlfcn.h>
 #include <unistd.h>
@@ -27,7 +27,7 @@
 
 #if FEMTOLOG_ENABLE_LLVM_UNWIND
 #include <libunwind.h>
-#elif FEMTOLOG_IS_POSIX
+#elif FEMTOLOG_BUILD_FLAG(IS_OS_POSIX)
 #include <execinfo.h>
 #endif
 
@@ -67,7 +67,7 @@ void stack_trace_entries_to_buffer(
   buffer[written] = '\0';
 }
 
-#if FEMTOLOG_IS_POSIX
+#if FEMTOLOG_BUILD_FLAG(IS_OS_POSIX)
 
 const char* demangle_symbol_safe(const char* mangled_name,
                                  char* demangled_buffer,
@@ -97,7 +97,7 @@ const char* demangle_symbol_safe(const char* mangled_name,
   return mangled_name;
 }
 
-#endif  // FEMTOLOG_IS_POSIX
+#endif  // FEMTOLOG_BUILD_FLAG(IS_OS_POSIX)
 
 bool is_valid_address(uintptr_t addr) {
   if (addr == 0 || addr < 0x1000) {
@@ -245,7 +245,7 @@ size_t collect_stack_trace(StackTraceEntry out[kPlatformMaxFrames],
 
   return collected_count;
 
-#elif FEMTOLOG_IS_POSIX
+#elif FEMTOLOG_BUILD_FLAG(IS_OS_POSIX)
   void* stack[kPlatformMaxFrames];
   int frames = backtrace(stack, static_cast<int>(max_frames));
   char address_buf[kAddressStrLength];
@@ -304,7 +304,7 @@ size_t collect_stack_trace(StackTraceEntry out[kPlatformMaxFrames],
   }
 
   return collected_count;
-#elif FEMTOLOG_IS_WINDOWS
+#elif FEMTOLOG_BUILD_FLAG(IS_OS_WIN)
   HANDLE process = GetCurrentProcess();
 
   void* stack[kPlatformMaxFrames * 2];
@@ -392,7 +392,7 @@ void stack_trace_from_current_context(char* buffer,
   stack_trace_entries_to_buffer(entries, count, buffer, buffer_size);
 }
 
-#if FEMTOLOG_IS_WINDOWS
+#if FEMTOLOG_BUILD_FLAG(IS_OS_WIN)
 
 namespace {
 
@@ -411,10 +411,10 @@ struct WindowsStackTraceHandler {
 
 }  // namespace
 
-#endif  // FEMTOLOG_IS_WINDOWS
+#endif  // FEMTOLOG_BUILD_FLAG(IS_OS_WIN)
 
 void register_stack_trace_handler() {
-#if FEMTOLOG_IS_WINDOWS
+#if FEMTOLOG_BUILD_FLAG(IS_OS_WIN)
   static const WindowsStackTraceHandler handler;
 #endif
 }
