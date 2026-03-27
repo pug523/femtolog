@@ -277,6 +277,10 @@ target("femtolog.root_config")
   if is_clang or is_gcc then
     add_cxxflags("-Wconversion", "-Wsign-conversion", "-Wnull-dereference", "-Wformat=2", "-Wundef", { public = true })
     add_cxxflags("-fstack-protector-strong", { public = true })
+
+    if is_mode("debug") then
+      add_cxxflags("-rdynamic", "-g3", { public = true })
+    end
   end
 
   set_exceptions("none", { public = true })
@@ -306,7 +310,7 @@ target("femtolog.root_config")
   if is_mode("debug") then
     set_symbols("debug", { public = true })
     set_optimize("none", { public = true })
-    add_cxxflags("-fno-omit-frame-pointer", "-rdynamic", "-g3", { public = true })
+    add_cxxflags("-fno-omit-frame-pointer", { public = true })
     add_defines("FEMTOLOG_IS_DEBUG=1", "FEMTOLOG_IS_RELEASE=0", "LLVM_ENABLE_STATS", "LLVM_ENABLE_DUMP", { public = true })
     if has_config("sanitizers") and get_config("sanitizers") and not is_plat("windows") then
       set_policy("build.sanitizer.address", true)
