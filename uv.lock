@@ -62,7 +62,7 @@ dependencies = [
 [package.metadata]
 requires-dist = [
     { name = "cpplint", specifier = ">=2.0.2,<2.1.0" },
-    { name = "requests", specifier = ">=2.32.5,<2.33.0" },
+    { name = "requests", specifier = ">=2.32.5,<2.34.0" },
 ]
 
 [[package]]

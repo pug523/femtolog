@@ -275,8 +275,7 @@ target("femtolog.root_config")
   set_kind("phony", { public = true })
   set_warnings("all", "extra", "error", "pedantic", { public = true })
   if is_clang or is_gcc then
-    add_cxxflags("-Wconversion", "-Wsign-conversion", "-Wnull-dereference", "-Wformat=2", { public = true })
-    -- add_cxxflags("-Wconversion", "-Wsign-conversion", "-Wnull-dereference", "-Wformat=2", "-Wundef", { public = true })
+    add_cxxflags("-Wconversion", "-Wsign-conversion", "-Wnull-dereference", "-Wformat=2", "-Wundef", { public = true })
     add_cxxflags("-fstack-protector-strong", { public = true })
   end
 
