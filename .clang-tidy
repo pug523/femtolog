@@ -5,19 +5,23 @@
                     bugprone-dangling-handle,
                     bugprone-forward-declaration-namespace,
                     bugprone-inaccurate-erase,
+                    bugprone-redundant-branch-condition,
                     bugprone-string-constructor,
                     bugprone-string-integer-assignment,
+                    bugprone-suspicious-memset-usage,
+                    bugprone-suspicious-realloc-usage,
+                    bugprone-terminating-continue,
                     bugprone-undefined-memory-manipulation,
                     bugprone-unique-ptr-array-mismatch,
                     bugprone-unused-raii,
                     bugprone-use-after-move,
                     bugprone-virtual-near-miss,
                     clang-analyzer-deadcode.DeadStores,
-                    google-build-explicit-make-pair,
-                    google-default-arguments,
-                    google-explicit-constructor,
-                    google-objc-avoid-nsobject-new,
-                    google-upgrade-googletest-case,
+                    google-*,
+                    -google-readability-check,
+                    -google-readability-todo,
+                    -google-whitespace-indent_namespace,
+                    misc-include-cleaner,
                     misc-misleading-identifier,
                     misc-homoglyph,
                     misc-unused-parameters,
@@ -41,7 +45,7 @@
                     modernize-use-transparent-functors,
                     performance-*,
                     readability-redundant-member-init'
-  HeaderFilterRegex: '^.*src[\\/](?!third_party[\\/]|external[\\/]|include[\\/]).*$'
+  HeaderFilterRegex: '^.*(src|tests)[\\/].*$'
   SystemHeaders:    false
   WarningsAsErrors: '*'
   ExtraArgsBefore:
@@ -49,6 +53,20 @@
   UseColor:         true
   CheckOptions:
     - key:          bugprone-assert-side-effect.AssertMacros
-      value:        assert,dcheck
+      value:        assert,DCHECK
+    - key:          bugprone-dangling-handle.HandleClasses
+      value:        ::std::basic_string_view;::std::span;::absl::string_view;::base::BasicStringPiece;::base::span
+    - key:          bugprone-string-constructor.StringNames
+      value:        ::std::basic_string;::std::basic_string_view;::base::BasicStringPiece;::absl::string_view
     - key:          modernize-use-default-member-init.UseAssignment
       value:        1
+    - key:          modernize-use-transparent-functors.SafeMode
+      value:        1
+    - key:          modernize-use-emplace.IgnoreImplicitConstructors
+      value:        1
+    - key:          modernize-loop-convert.MakeReverseRangeFunction
+      value:        1
+    - key:          modernize-loop-convert.MakeReverseRangeHeader
+      value:        1
+    - key: misc-include-cleaner.IgnoreHeaders
+      value:        (third_party|src/build|include|catch2).*
