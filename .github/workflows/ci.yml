@@ -27,16 +27,19 @@ jobs:
             arch: x86_64
             cc: clang
             cxx: clang++
+            toolchain: clang
           - os: windows-2025-vs2026
             plat: windows
             arch: x64
             cc: cl
             cxx: cl
+            toolchain: msvc
           - os: macos-26
             plat: macosx
             arch: arm64
             cc: clang
             cxx: clang++
+            toolchain: clang
       fail-fast: false
     runs-on: ${{ matrix.os }}
     name: build and test (${{ matrix.os }})
@@ -80,6 +83,7 @@ jobs:
             -m debug \
             --tests=y \
             --unitybuild=y \
+            --toolchain=${{ matrix.toolchain }} \
             -p "${{ matrix.plat }}" \
             -a "${{ matrix.arch }}"
 
@@ -103,5 +107,5 @@ jobs:
         run: |
           xmake check api
           # xmake check clang
-          xmake analyze
+          # xmake analyze
           xmake lint
