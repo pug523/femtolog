@@ -78,11 +78,11 @@ jobs:
             --tests=y \
             --coverage=y \
             --sanitizers=y \
-            --toolchain=llvm \
+            # --toolchain=llvm \
+            # --stdlib="${{ matrix.stdlib }}" \
             --unitybuild=y \
             -p "${{ matrix.plat }}" \
-            -a "${{ matrix.arch }}" \
-            --stdlib="${{ matrix.stdlib }}"
+            -a "${{ matrix.arch }}"
 
       - name: build
         shell: bash
