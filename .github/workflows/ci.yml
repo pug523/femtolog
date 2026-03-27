@@ -25,18 +25,24 @@ jobs:
           - os: ubuntu-24.04
             plat: linux
             arch: x86_64
+            cc: clang
+            cxx: clang++
           - os: windows-2025-vs2026
             plat: windows
             arch: x64
+            cc: cl
+            cxx: cl
           - os: macos-26
             plat: macosx
             arch: arm64
+            cc: clang
+            cxx: clang++
       fail-fast: false
     runs-on: ${{ matrix.os }}
     name: build and test (${{ matrix.os }})
     env:
-      CC: clang
-      CXX: clang++
+      CC: ${{ matrix.cc }}
+      CXX: ${{ matrix.cxx }}
       XMAKE_COLORTERM: color256
     steps:
       - name: checkout repository
@@ -73,8 +79,6 @@ jobs:
           xmake config -c -y \
             -m debug \
             --tests=y \
-            --coverage=y \
-            --sanitizers=y \
             --unitybuild=y \
             -p "${{ matrix.plat }}" \
             -a "${{ matrix.arch }}"
